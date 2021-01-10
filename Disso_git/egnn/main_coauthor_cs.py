@@ -55,7 +55,7 @@ print(args)
 # load data
 # ************************************************************
 A = np.random.uniform(size=(18333,18333))
-with open('data_coauthor_cs/X_Y_idx/X_Y_idx','rb') as f:
+with open('data_coauthor_' + 'CS' + '/' + 'CS' + '/curvatures_and_idx/curv_idx','rb') as f:
     X,Y,idx_train,idx_val,idx_test,orc,frc = pickle.load(f)
 
 print("Y")
