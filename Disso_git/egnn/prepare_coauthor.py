@@ -12,7 +12,7 @@ datasets = ['CS'] #,'Physics']
 
 for dataset in datasets:
     coauth = Coauthor('data_coauthor_'+dataset,dataset)
-    data = torch.load('data_coauthor_' + dataset + '/' + dataset '/processed/data.pt')
+    data = torch.load('data_coauthor_' + dataset + '/' + dataset + '/processed/data.pt')
     G = to_networkx(data[0],to_undirected=True,remove_self_loops=True)
     print("made G")
     orc = OllivierRicci(G, alpha=0.5, verbose="INFO")
@@ -30,6 +30,6 @@ for dataset in datasets:
             counts[yval] += 1
     test_val_idx = list(set(range(18333)).difference(set(train_idx)))
     val_idx, test_idx = test_val_idx[:500], test_val_idx[500:1500]
-    os.mkdir('data_coauthor_' + dataset + '/curvatures_and_idx')
-    with open('data_coauthor_' + dataset + '/curvatures_and_idx/curv_idx','wb') as f:
+    os.mkdir('data_coauthor_' + dataset + '/' + dataset + '/curvatures_and_idx')
+    with open('data_coauthor_' + dataset + '/' + dataset + '/curvatures_and_idx/curv_idx','wb') as f:
         pickle.dump((X,Y,train_idx,val_idx,test_idx,orc,frc),f)
