@@ -18,7 +18,7 @@ for dataset in datasets:
     G = to_networkx(data[0],to_undirected=True,remove_self_loops=True)
     print("made G")
     orc = OllivierRicci(G, alpha=0.5, verbose="INFO")
-    #orc.compute_ricci_curvature()
+    orc.compute_ricci_curvature()
     frc = FormanRicci(G)
     frc.compute_ricci_curvature()
     X = np.array(data[0].x)

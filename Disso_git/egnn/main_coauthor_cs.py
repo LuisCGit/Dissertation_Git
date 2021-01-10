@@ -92,19 +92,17 @@ nodes = nodes.toarray()
 vals = []
 EYE = scipy.sparse.eye(K, dtype=np.float32, format='coo')
 
-#A = Adj_from_norm[:,:,0]
-# A = E_norm[:,:,1]
 
 ########################################### TRYING TO REPLACE A WITH RICCI CURVATURE ###########################################
 ollivier_curv_vals, forman_curv_vals = csr_matrix(A.shape).toarray(), csr_matrix(A.shape).toarray()
 
 for tup in orc.G.edges:
     i,j = tup[0], tup[1]
-    #ollivier_curv_vals[i][j] = map_curvature_val(orc.G[i][j]['ricciCurvature'])
+    ollivier_curv_vals[i][j] = map_curvature_val(orc.G[i][j]['ricciCurvature'])
     forman_curv_vals[i][j] = map_curvature_val(frc.G[i][j]['formanCurvature'])
 
 #edge_feat_list = [ollivier_curv_vals]
-edge_feat_list = [forman_curv_vals]
+edge_feat_list = [ollivier_curv_vals,forman_curv_vals]
 ########################################### END ###########################################
 for mat in edge_feat_list:
     vals.append((mat+mat.transpose()+EYE>0).astype(np.float32))
