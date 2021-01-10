@@ -17,6 +17,7 @@ import pickle
 
 import os
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
+os.environ['CUDA_VISIBLE_DEVICES'] = 0
 #Packages added by me:
 from prepare_data import G_from_data_file, map_curvature_val
 from GraphRicciCurvature.OllivierRicci import OllivierRicci
