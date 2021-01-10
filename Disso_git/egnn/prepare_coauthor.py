@@ -12,7 +12,9 @@ datasets = ['CS'] #,'Physics']
 
 for dataset in datasets:
     coauth = Coauthor('data_coauthor_'+dataset,dataset)
+    print("coauth done")
     data = torch.load('data_coauthor_' + dataset + '/' + dataset + '/processed/data.pt')
+    print("assigned val to data")
     G = to_networkx(data[0],to_undirected=True,remove_self_loops=True)
     print("made G")
     orc = OllivierRicci(G, alpha=0.5, verbose="INFO")
