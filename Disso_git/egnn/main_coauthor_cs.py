@@ -112,7 +112,7 @@ for tup in orc.G.edges:
     forman_curv_vals[i][j] = map_curvature_val(frc.G[i][j]['formanCurvature'])
 
 #edge_feat_list = [ollivier_curv_vals]
-edge_feat_list = [forman_curv_vals]
+edge_feat_list = [ollivier_curv_vals,forman_curv_vals]
 ########################################### END ###########################################
 for mat in edge_feat_list:
     vals.append((mat+mat.transpose()+EYE>0).astype(np.float32))
