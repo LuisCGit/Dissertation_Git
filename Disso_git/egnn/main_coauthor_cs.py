@@ -161,7 +161,7 @@ training = tf.placeholder(dtype=tf.bool, shape=())
 h, edges = nodes, edges
 
 # hidden layers
-h, edges = layer(args.layer_type, (h, edges), 64, training, args, activation=tf.nn.elu)
+h, edges = layer(args.layer_type, (h, edges), 32, training, args, activation=tf.nn.elu)
 
 # classification layer
 logits,_ = layer(args.layer_type, (h, edges), nC, training, args,
