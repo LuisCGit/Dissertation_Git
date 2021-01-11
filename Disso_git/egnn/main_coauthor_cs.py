@@ -48,6 +48,16 @@ parser.add_argument('--edge-norm', type=str, default='row')
 parser.add_argument('--adaptive', action='store_true', default=False)
 parser.add_argument('--weighted', action='store_true', default=False)
 
+
+edges_init = np.random.uniform(size=(18333,18333,2)).astype(np.float32)
+edges_plhdr = tf.placeholder(dtype=tf.float32, shape=[18333, 18333,2])
+edges = tf.get_variable('edges', [18333, 18333,2])
+with tf.Session() as sess:
+    sess.run(tf.global_variables_initializer())
+    sess.run(edges.assign(edges_plhdr), {edges_plhdr: edges_init})
+
+
+
 if __name__ == '__main__' and '__file__' in globals():
     args = parser.parse_args()
 else:
