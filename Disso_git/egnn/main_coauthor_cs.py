@@ -104,7 +104,7 @@ for tup in orc.G.edges:
     forman_curv_vals[i][j] = map_curvature_val(frc.G[i][j]['formanCurvature'])
 
 #edge_feat_list = [ollivier_curv_vals]
-edge_feat_list = [ollivier_curv_vals,forman_curv_vals]
+edge_feat_list = [ollivier_curv_vals]
 ########################################### END ###########################################
 for mat in edge_feat_list:
     vals.append((mat+mat.transpose()+EYE>0).astype(np.float32))
@@ -164,7 +164,7 @@ h, edges = nodes, edges
 print("h, edges shape before layer", (h.shape,edges.shape))
 
 # hidden layers
-h, edges_layer = layer(args.layer_type, (h, edges), 4, training, args, activation=tf.nn.elu)
+h, edges_layer = layer(args.layer_type, (h, edges), 64, training, args, activation=tf.nn.elu)
 print("h, edges shape after layer",(h.shape,edges.shape))
 
 

@@ -235,6 +235,11 @@ class GraphConv(CompositeLayer):
 
         """
         X, E = inputs
+
+        #added-----
+        #E0, E1 = tf.convert_to_tensor([:,:,0]) , tf.convert_to_tensor(E[:,:,1])
+        #-----
+
         X = tf.convert_to_tensor(X)
         ec_axis = -1 if self.data_format == 'channels_last' else -3
         E = tf.convert_to_tensor(E)
@@ -251,10 +256,14 @@ class GraphConv(CompositeLayer):
         XDWD = self.embeded_node_dropout_layer(XDW, training=training)
 
         # edge dropout
-        ED = self.edge_dropout_layer(E, training=training)
+        ED = self.edge_dropout_layer(E, training=training) #---HERE
+
+        #added-----
+        #ED0, ED1 = self.edge_dropout_layer(tf.convert_to_tensor([:,:,0])) , self.edge_dropout_layer(tf.convert_to_tensor(E[:,:,1]))
+        #-----
 
         # node aggregation
-        Y, out_E = self.node_aggregate(XDW, XDWD, E, ED, out_E, training)
+        Y, out_E = self.node_aggregate(XDW, XDWD, E, ED, out_E, training) #---HERE
 
         # multi-edge aggregation
         if self.multi_edge_aggregation == 'concat':
