@@ -200,15 +200,16 @@ acc_stop = -math.inf
 saver = tf.train.Saver()
 nan_happend = False
 
-edges_init = np.random.uniform(size=(18333,18333,2)).astype(np.float32)
+#edges_init = np.random.uniform(size=(18333,18333,2)).astype(np.float32)
 edges_plhdr = tf.placeholder(dtype=tf.float32, shape=[18333, 18333,2])
+edges_layer = tf.Variable(edges_plhdr)
 #edges_layer = tf.get_variable('edges_layer', [18333, 18333,2])
 #with tf.Session() as sess:
 #    sess.run(tf.global_variables_initializer())
 
 
 with tf.Session() as sess:
-    sess.run(init_op, feed_dict = {edges_plhdr:edges_layer})
+    sess.run(tf.initialize_all_variables(), feed_dict = {edges_plhdr:layer(args.layer_type, (h, edges), 64, training, args, activation=tf.nn.elu)[1]})
     #sess.run(edges_layer.assign(edges_plhdr), {edges_plhdr: edges_init})
 
     t0 = time.time()
