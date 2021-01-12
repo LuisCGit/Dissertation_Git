@@ -216,12 +216,12 @@ with tf.Session() as sess:
     for epoch in range(args.epochs):
         t = time.time()
         # training step
-        sess.run([train_op], feed_dict={training:True})
+        sess.run([train_op], feed_dict={training:True,edges_plhdr:layer(args.layer_type, (h, edges), 64, training, args, activation=tf.nn.elu)[1]})
 
         # validation step
         [loss_train_np, loss_val_np, Yhat_np] = sess.run(
             [loss_train, loss_val, Yhat],
-            feed_dict={training:False})
+            feed_dict={training:False,edges_plhdr:layer(args.layer_type, (h, edges), 64, training, args, activation=tf.nn.elu)[1]})
         acc_train = utils.calc_acc(Y, Yhat_np, idx_train)
         acc_val = utils.calc_acc(Y, Yhat_np, idx_val)
 
@@ -251,6 +251,6 @@ with tf.Session() as sess:
     if not args.no_test or nan_happend:
         saver.restore(sess, str(ckpt_path))
         [loss_test_np, Yhat_np] = sess.run(
-            [loss_test, Yhat], feed_dict={training:False})
+            [loss_test, Yhat], feed_dict={training:False,edges_plhdr:layer(args.layer_type, (h, edges), 64, training, args, activation=tf.nn.elu)[1]})
         acc = utils.calc_acc(Y, Yhat_np, idx_test)
         print('Testing - loss=%.4f acc=%.4f' % (loss_test_np, acc))
