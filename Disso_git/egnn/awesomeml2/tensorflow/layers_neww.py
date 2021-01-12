@@ -237,7 +237,7 @@ class GraphConv(CompositeLayer):
         X, E = inputs
 
         #added-----
-        #E0, E1 = tf.convert_to_tensor([:,:,0]) , tf.convert_to_tensor(E[:,:,1])
+        #E0, E1 = tf.convert_to_tensor([0,:,:]) , tf.convert_to_tensor(E[1,:,0])
         #-----
 
         X = tf.convert_to_tensor(X)

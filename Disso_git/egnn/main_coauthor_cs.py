@@ -216,7 +216,7 @@ with tf.Session() as sess:
     for epoch in range(args.epochs):
         t = time.time()
         # training step
-        sess.run([train_op]) #, feed_dict={training:True,edges_plhdr:layer(args.layer_type, (h, edges), 64, training, args, activation=tf.nn.elu)[1]})
+        sess.run([train_op], feed_dict={training:True}) #, feed_dict={training:True,edges_plhdr:layer(args.layer_type, (h, edges), 64, training, args, activation=tf.nn.elu)[1]})
 
         # validation step
         [loss_train_np, loss_val_np, Yhat_np] = sess.run(
