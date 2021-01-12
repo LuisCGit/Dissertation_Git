@@ -209,7 +209,7 @@ edges_layer = tf.Variable(edges_plhdr)
 
 
 with tf.Session() as sess:
-    sess.run(tf.initialize_all_variables(), feed_dict = {edges_plhdr:layer(args.layer_type, (h, edges), 64, training, args, activation=tf.nn.elu)[1]})
+    sess.run(tf.initialize_all_variables(), feed_dict = {edges_layer:layer(args.layer_type, (h, edges), 64, training, args, activation=tf.nn.elu)[1]})
     #sess.run(edges_layer.assign(edges_plhdr), {edges_plhdr: edges_init})
 
     t0 = time.time()
