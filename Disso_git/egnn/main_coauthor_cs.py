@@ -164,7 +164,7 @@ h, edges = nodes, edges
 print("h, edges shape before layer", (h.shape,edges.shape))
 
 # hidden layers
-h, edges_layer = layer(args.layer_type, (h, edges), 64, training, args, activation=tf.nn.elu)
+h, edges_layer = layer(args.layer_type, (h, edges), 4, training, args, activation=tf.nn.elu)
 print("h, edges shape after layer",(h.shape,edges.shape))
 
 
