@@ -241,7 +241,8 @@ with tf.Session() as sess:
         if loss_val_np <= loss_stop:
             bad_epochs = 0
             if not args.no_test:
-                saver.save(sess, str(ckpt_path))
+                #saver.save(sess, str(ckpt_path))
+                pass
             loss_stop = loss_val_np
             acc_stop = acc_val
         else:
@@ -255,8 +256,9 @@ with tf.Session() as sess:
     # evaluation step
     # load check point
     if not args.no_test or nan_happend:
-        saver.restore(sess, str(ckpt_path))
-        [loss_test_np, Yhat_np] = sess.run(
-            [loss_test, Yhat], feed_dict={training:False})#edges_plhdr:layer(args.layer_type, (h, edges), 64, training, args, activation=tf.nn.elu)[1]})
-        acc = utils.calc_acc(Y, Yhat_np, idx_test)
-        print('Testing - loss=%.4f acc=%.4f' % (loss_test_np, acc))
+        # saver.restore(sess, str(ckpt_path))
+        # [loss_test_np, Yhat_np] = sess.run(
+        #     [loss_test, Yhat], feed_dict={training:False})#edges_plhdr:layer(args.layer_type, (h, edges), 64, training, args, activation=tf.nn.elu)[1]})
+        # acc = utils.calc_acc(Y, Yhat_np, idx_test)
+        # print('Testing - loss=%.4f acc=%.4f' % (loss_test_np, acc))
+        print("made to test phase")
