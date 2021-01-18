@@ -4,7 +4,7 @@ import tensorflow as tf
 import awesomeml2 as aml
 import awesomeml2.utils as aml_utils
 #import awesomeml2.tensorflow.layers as aml_layers
-import awesomeml2.tensorflow.layers_neww as aml_layers
+import awesomeml2.tensorflow.layers_neww_parallel as aml_layers
 
 import awesomeml2.tensorflow.ops as aml_tf_ops
 import awesomeml2.graph as aml_graph
