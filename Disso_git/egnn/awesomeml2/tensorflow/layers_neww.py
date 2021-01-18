@@ -259,17 +259,21 @@ class GraphConv(CompositeLayer):
         ED = self.edge_dropout_layer(E, training=training) #---HERE
 
         #added-----
-        #ED0, ED1 = self.edge_dropout_layer(tf.convert_to_tensor([:,:,0])) , self.edge_dropout_layer(tf.convert_to_tensor(E[:,:,1]))
+        #ED0, ED1 = self.edge_dropout_layer(E0) , self.edge_dropout_layer(E1)
         #-----
 
         # node aggregation
-        Y, out_E = self.node_aggregate(XDW, XDWD, E, ED, out_E, training) #---HERE
+        Y, out_E = self.node_aggregate(XDW, XDWD, E, ED, out_E, training) #---HERE (wanna replace ED with ED0, ED1)
+        print("Y shape here u bitch", Y.shape)
+        print("outE shape here you bitvh", out_E.shape)
 
         # multi-edge aggregation
         if self.multi_edge_aggregation == 'concat':
             Y = tf.concat(tf.unstack(Y, axis=-3), -1)
+            print("Y shape here in concat", Y.shape)
         else:
             Y = tf.reduce_mean(Y, -3)
+            print("Y shape here in mean", Y.shape)
 
         # add bias
         Y = self.bias_add_layer(Y)

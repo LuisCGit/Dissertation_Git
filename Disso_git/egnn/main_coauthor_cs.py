@@ -104,7 +104,7 @@ for tup in orc.G.edges:
     forman_curv_vals[i][j] = map_curvature_val(frc.G[i][j]['formanCurvature'])
 
 #edge_feat_list = [ollivier_curv_vals]
-edge_feat_list = [ollivier_curv_vals]
+edge_feat_list = [ollivier_curv_vals, forman_curv_vals]
 ########################################### END ###########################################
 for mat in edge_feat_list:
     vals.append((mat+mat.transpose()+EYE>0).astype(np.float32))
@@ -160,16 +160,22 @@ tf.reset_default_graph()
 
 # input layer
 training = tf.placeholder(dtype=tf.bool, shape=())
-h, edges = nodes, edges
-print("h, edges shape before layer", (h.shape,edges.shape))
+h, E0, E1 = nodes, edges[:,:,0], edges[:,:,1]
 
 # hidden layers
-h, edges_layer = layer(args.layer_type, (h, edges), 64, training, args, activation=tf.nn.elu)
-print("h, edges shape after layer",(h.shape,edges.shape))
+h, E0, E1 = layer(args.layer_type, (h, E0, E1), 64, training, args, activation=tf.nn.elu)
+#--------ADDED FOR PP
+# sheet1, sheet2, E0, E1 = layer(args.layer_type, (h, edges), 64, training, args, activation=tf.nn.elu)
+#
+# h = tf.concat([sheet1, sheet2], axis = 0)
+# edges = tf.concat([E0, E1], axis = 0)
+#--------
+print("h shape", h.shape)
+print("edges shape", edges.shape)
 
 
 # classification layer
-logits,_ = layer(args.layer_type, (h, edges_layer), nC, training, args,
+logits,_,_ = layer(args.layer_type, (h, E0, E1), nC, training, args,
                  multi_edge_aggregation='mean')
 Yhat = tf.one_hot(tf.argmax(logits, axis=-1), nC)
 loss_train = utils.calc_loss(Y, logits, idx_train, W=W)
@@ -201,8 +207,8 @@ saver = tf.train.Saver()
 nan_happend = False
 
 #edges_init = np.random.uniform(size=(18333,18333,2)).astype(np.float32)
-edges_plhdr = tf.placeholder(dtype=tf.float32, shape=[18333, 18333,2])
-edges_layer = tf.Variable(edges_plhdr)
+# edges_plhdr = tf.placeholder(dtype=tf.float32, shape=[18333, 18333,2])
+# edges_layer = tf.Variable(edges_plhdr)
 #edges_layer = tf.get_variable('edges_layer', [18333, 18333,2])
 #with tf.Session() as sess:
 #    sess.run(tf.global_variables_initializer())

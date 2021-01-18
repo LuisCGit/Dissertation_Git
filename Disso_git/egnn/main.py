@@ -86,15 +86,11 @@ vals = []
 EYE = scipy.sparse.eye(K, dtype=np.float32, format='coo')
 # print("EYE SHAPE")
 # print(EYE.shape)
-E_norm = np.load("data/doubly_stoch_norm_ollivier_forman.npy").astype(np.float32)
-Adj_from_norm = np.where(E_norm == 0, E_norm, 1)
-print("ADJ FROM NORM",Adj_from_norm[:,:])
-print(np.all(Adj_from_norm[:,:,0] == Adj_from_norm[:,:,1]))
 #A = Adj_from_norm[:,:,0]
 # A = E_norm[:,:,1]
 
 ########################################### TRYING TO REPLACE A WITH RICCI CURVATURE ###########################################
-G = G_from_data_file("data/cora")
+G = G_from_data_file("/cora")
 ollivier_curv_vals, forman_curv_vals = csr_matrix(A.shape).toarray(), csr_matrix(A.shape).toarray()
 orc = OllivierRicci(G, alpha=0.5, verbose="INFO")
 orc.compute_ricci_curvature()
