@@ -235,6 +235,7 @@ class GraphConv(CompositeLayer):
 
         """
         X, E0, E1 = inputs
+        print(args.alpha)
         X = tf.convert_to_tensor(X)
         ec_axis = -1 if self.data_format == 'channels_last' else -3
 
@@ -320,7 +321,9 @@ class GraphConv(CompositeLayer):
         print("ED0 shape", ED0.shape)
         print("ED0@XDWD[0,:,:] shape", (ED0@XDWD[0,:,:]).shape)
         #--------ADDED FOR PP
-        alpha = 0.15
+        #tried values for alpha and max val accuracy (over at most 250 epochs)
+        # {0: 0.15: 91.4%}
+        alpha = 0
         sheet1 = alpha*ED0_transformed + (ED0@XDWD[0,:,:])
         sheet2 = alpha*ED1_transformed + (ED1@XDWD[1,:,:])
         #--------

@@ -47,6 +47,7 @@ parser.add_argument('--encode-edge-direction', action='store_true')
 parser.add_argument('--edge-norm', type=str, default='row')
 parser.add_argument('--adaptive', action='store_true', default=False)
 parser.add_argument('--weighted', action='store_true', default=False)
+parser.add_argument('--alpha', action='store_true', default=0)
 
 
 
