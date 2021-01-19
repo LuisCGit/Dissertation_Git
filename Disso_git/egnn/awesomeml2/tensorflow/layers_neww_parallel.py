@@ -321,9 +321,9 @@ class GraphConv(CompositeLayer):
         print("ED0@XDWD[0,:,:] shape", (ED0@XDWD[0,:,:]).shape)
         #--------ADDED FOR PP
         #tried values for alpha and max val accuracy (over at most 250 epochs)
-        # {0: 0.15: 91.4%}
-        sheet1 = alpha*ED0_transformed + (ED0@XDWD[0,:,:])
-        sheet2 = alpha*ED1_transformed + (ED1@XDWD[1,:,:])
+        # {0:91.6%, 0.075:91.2%, 0.15: 91.4%}
+        sheet1 = alpha*ED0_transformed + (1-alpha)*(ED0@XDWD[0,:,:])
+        sheet2 = alpha*ED1_transformed + (1-alpha)*(ED1@XDWD[1,:,:])
         #--------
         print("sheet1 shape", sheet1.shape)
         return (sheet1, sheet2, E0, E1)
