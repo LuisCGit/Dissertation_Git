@@ -234,8 +234,7 @@ class GraphConv(CompositeLayer):
           representation of output graph
 
         """
-        X, E0, E1 = inputs
-        print(args.alpha)
+        X, E0, E1, alpha  = inputs
         X = tf.convert_to_tensor(X)
         ec_axis = -1 if self.data_format == 'channels_last' else -3
 
@@ -270,7 +269,7 @@ class GraphConv(CompositeLayer):
 
 
         # node aggregation
-        (sheet1, sheet2, E0, E1) = self.node_aggregate(XDW, XDWD, ED0, ED1, E0, E1, training) #-------- replaced 'ED' w ED0,ED1 and 'out_E' w E0, E1
+        (sheet1, sheet2, E0, E1) = self.node_aggregate(XDW, XDWD, ED0, ED1, E0, E1, alpha, training) #-------- replaced 'ED' w ED0,ED1 and 'out_E' w E0, E1
         #Y = tf.stack([sheet1, sheet2], axis = 2)
         out_E = tf.stack([E0, E1], axis = 2)
         print("out_E shape here butchass", out_E.shape)
@@ -295,7 +294,7 @@ class GraphConv(CompositeLayer):
         return (Y, E0,E1)
 
 
-    def node_aggregate(self, XDW, XDWD, ED0, ED1, E0, E1, training):  #-------- replaced 'ED' w ED0,ED1 and 'out_E' w E0, E1
+    def node_aggregate(self, XDW, XDWD, ED0, ED1, E0, E1, alpha, training):  #-------- replaced 'ED' w ED0,ED1 and 'out_E' w E0, E1
         if len(E0.shape)+1 == XDW.get_shape().ndims: #--------  changed for PP if E.get_shape().ndims == XDW.get_shape().ndims:
             print("we expanding")
             #ED = tf.expand_dims(ED, -3)
@@ -323,7 +322,6 @@ class GraphConv(CompositeLayer):
         #--------ADDED FOR PP
         #tried values for alpha and max val accuracy (over at most 250 epochs)
         # {0: 0.15: 91.4%}
-        alpha = 0
         sheet1 = alpha*ED0_transformed + (ED0@XDWD[0,:,:])
         sheet2 = alpha*ED1_transformed + (ED1@XDWD[1,:,:])
         #--------

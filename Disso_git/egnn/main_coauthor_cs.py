@@ -164,7 +164,7 @@ training = tf.placeholder(dtype=tf.bool, shape=())
 h, E0, E1 = nodes, edges[:,:,0], edges[:,:,1]
 
 # hidden layers
-h, E0, E1 = layer(args.layer_type, (h, E0, E1), 64, training, args, activation=tf.nn.elu)
+h, E0, E1 = layer(args.layer_type, (h, E0, E1, args.alpha), 64, training, args, activation=tf.nn.elu)
 #--------ADDED FOR PP
 # sheet1, sheet2, E0, E1 = layer(args.layer_type, (h, edges), 64, training, args, activation=tf.nn.elu)
 #
@@ -176,7 +176,7 @@ print("edges shape", edges.shape)
 
 
 # classification layer
-logits,_,_ = layer(args.layer_type, (h, E0, E1), nC, training, args,
+logits,_,_ = layer(args.layer_type, (h, E0, E1, args.alpha), nC, training, args,
                  multi_edge_aggregation='mean')
 Yhat = tf.one_hot(tf.argmax(logits, axis=-1), nC)
 loss_train = utils.calc_loss(Y, logits, idx_train, W=W)
