@@ -320,8 +320,9 @@ class GraphConv(CompositeLayer):
         print("ED0 shape", ED0.shape)
         print("ED0@XDWD[0,:,:] shape", (ED0@XDWD[0,:,:]).shape)
         #--------ADDED FOR PP
-        sheet1 = ED0_transformed + (ED0@XDWD[0,:,:])
-        sheet2 = ED1_transformed + (ED1@XDWD[1,:,:])
+        alpha = 0.15
+        sheet1 = alpha*ED0_transformed + (ED0@XDWD[0,:,:])
+        sheet2 = alpha*ED1_transformed + (ED1@XDWD[1,:,:])
         #--------
         print("sheet1 shape", sheet1.shape)
         return (sheet1, sheet2, E0, E1)
