@@ -322,6 +322,8 @@ class GraphConv(CompositeLayer):
         #--------ADDED FOR PP
         #tried values for alpha and max val accuracy (over at most 250 epochs)
         # {0:91.6%, 0.075:91.2%, 0.15: 91.4%}
+        #tried values for alpha (and 1-alpha) and max val accuracy (over at most 250 epochs)
+        # {0.15: 91.4%,  0.3:90.6, 0.3(double reg): 91.2}
         sheet1 = alpha*ED0_transformed + (1-alpha)*(ED0@XDWD[0,:,:])
         sheet2 = alpha*ED1_transformed + (1-alpha)*(ED1@XDWD[1,:,:])
         #--------
