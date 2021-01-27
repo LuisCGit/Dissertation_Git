@@ -56,6 +56,11 @@ normalization = ['dsm','row']
 
 test_accs = np.zeros((len(alpha_vals),len(curvature_mapping_alpha),len(normalization)))
 
+data = tf.placeholder(tf.float32)
+ds = tf.data.Dataset.from_tensor_slices(data)
+itr = ds.make_initializable_iterator()
+next = itr.get_next()
+
 def enumerated_product(*args):
     yield from zip(product(*(range(len(x)) for x in args)), product(*args))
 
@@ -193,7 +198,8 @@ for idx, param_tup in enumerated_product(alpha_vals, curvature_mapping_alpha,nor
         train_op = optimizer.minimize(loss_train + lossL2)
 
         init_op = tf.group(tf.global_variables_initializer(),
-                           tf.local_variables_initializer())
+                           tf.local_variables_initializer(),
+                           itr.initializer())
 
         # ************************************************************
         # training
@@ -225,7 +231,7 @@ for idx, param_tup in enumerated_product(alpha_vals, curvature_mapping_alpha,nor
             for epoch in range(args.epochs):
                 t = time.time()
                 # training step
-                sess.run([train_op], feed_dict={training:True}) #, feed_dict={training:True,edges_plhdr:layer(args.layer_type, (h, edges), 64, training, args, activation=tf.nn.elu)[1]})
+                sess.run([train_op],next, feed_dict={training:True,data:X}) #, feed_dict={training:True,edges_plhdr:layer(args.layer_type, (h, edges), 64, training, args, activation=tf.nn.elu)[1]})
 
                 # validation step
                 [loss_train_np, loss_val_np, Yhat_np] = sess.run(
