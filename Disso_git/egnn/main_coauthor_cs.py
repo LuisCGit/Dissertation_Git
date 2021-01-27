@@ -198,8 +198,8 @@ for idx, param_tup in enumerated_product(alpha_vals, curvature_mapping_alpha,nor
         train_op = optimizer.minimize(loss_train + lossL2)
 
         init_op = tf.group(tf.global_variables_initializer(),
-                           tf.local_variables_initializer(),
-                           itr.initializer())
+                           tf.local_variables_initializer()
+                           )
 
         # ************************************************************
         # training
@@ -231,7 +231,7 @@ for idx, param_tup in enumerated_product(alpha_vals, curvature_mapping_alpha,nor
             for epoch in range(args.epochs):
                 t = time.time()
                 # training step
-                sess.run([train_op],next, feed_dict={training:True,data:X}) #, feed_dict={training:True,edges_plhdr:layer(args.layer_type, (h, edges), 64, training, args, activation=tf.nn.elu)[1]})
+                sess.run([train_op], feed_dict={training:True}) #, feed_dict={training:True,edges_plhdr:layer(args.layer_type, (h, edges), 64, training, args, activation=tf.nn.elu)[1]})
 
                 # validation step
                 [loss_train_np, loss_val_np, Yhat_np] = sess.run(
@@ -250,6 +250,7 @@ for idx, param_tup in enumerated_product(alpha_vals, curvature_mapping_alpha,nor
                 if loss_val_np <= loss_stop:
                     bad_epochs = 0
                     if not args.no_test:
+                        print("GraphDef", tf.GraphDef())
                         saver.save(sess, str(ckpt_path))
                         pass
                     loss_stop = loss_val_np
