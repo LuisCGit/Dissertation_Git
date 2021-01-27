@@ -33,6 +33,8 @@ def map_curvature_val(curvature,alpha=1):
 
     @return: returns f(curvature)
     """
+    print("curvature", curvature)
+    print(type(curvature))
     return np.exp(alpha*curvature)/(np.exp(alpha*curvature)+1)
 
 def map_curvature_val_tan(curvature,alpha=1):
