@@ -260,12 +260,13 @@ for idx, param_tup in enumerated_product(alpha_vals, curvature_mapping_alpha,nor
             # load check point
             if not args.no_test or nan_happend:
                 saver.restore(sess, str(ckpt_path))
-                [loss_test_np, Yhat_np] = sess.run(
-                    [loss_test, Yhat], feed_dict={training:False})
                 print("Y shape")
                 print(Y.shape)
                 print("Y hat shape")
                 print(Yhat_np.shape)
+                [loss_test_np, Yhat_np] = sess.run(
+                    [loss_test, Yhat], feed_dict={training:False})
+
                 acc = utils.calc_acc(Y, Yhat_np, idx_test)
                 test_accs[idx] = acc
                 np.save("egnn_test_coauthCS_params_dense",test_accs)
