@@ -32,7 +32,7 @@ from itertools import product
 # ************************************************************
 parser = argparse.ArgumentParser()
 # general
-parser.add_argument('--epochs', type=int, default=10000)
+parser.add_argument('--epochs', type=int, default=1)
 parser.add_argument('--patience', type=int, default=100)
 parser.add_argument('--no-test', action='store_true', default=False)
 parser.add_argument('--lr', type=float, default=0.005)
@@ -261,7 +261,11 @@ for idx, param_tup in enumerated_product(alpha_vals, curvature_mapping_alpha,nor
             if not args.no_test or nan_happend:
                 saver.restore(sess, str(ckpt_path))
                 [loss_test_np, Yhat_np] = sess.run(
-                    [loss_test, Yhat], feed_dict={training:False})#edges_plhdr:layer(args.layer_type, (h, edges), 64, training, args, activation=tf.nn.elu)[1]})
+                    [loss_test, Yhat], feed_dict={training:False})
+                print("Y shape")
+                print(Y.shape)
+                print("Y hat shape")
+                print(Yhat_np.shape)
                 acc = utils.calc_acc(Y, Yhat_np, idx_test)
                 test_accs[idx] = acc
                 np.save("egnn_test_coauthCS_params_dense",test_accs)
