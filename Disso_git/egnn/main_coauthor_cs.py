@@ -66,8 +66,6 @@ else:
 
 for idx, param_tup in enumerated_product(alpha_vals, curvature_mapping_alpha,normalization):
         alpha_val,curv_mapping_alpha,norm = param_tup
-        print("curv_mapping_alpha", curv_mapping_alpha)
-        print(type(curv_mapping_alpha))
         args.alpha = alpha_val
         args.edge_norm = norm
         print("params", param_tup)
@@ -114,8 +112,8 @@ for idx, param_tup in enumerated_product(alpha_vals, curvature_mapping_alpha,nor
 
         for tup in orc.G.edges:
             i,j = tup[0], tup[1]
-            ollivier_curv_vals[i][j] = map_curvature_val(orc.G[i][j]['ricciCurvature'],alpha = curvature_mapping_alpha)
-            forman_curv_vals[i][j] = map_curvature_val(frc.G[i][j]['formanCurvature'], alpha = curvature_mapping_alpha)
+            ollivier_curv_vals[i][j] = map_curvature_val(orc.G[i][j]['ricciCurvature'],alpha = curv_mapping_alpha)
+            forman_curv_vals[i][j] = map_curvature_val(frc.G[i][j]['formanCurvature'], alpha = curv_mapping_alpha)
 
         #edge_feat_list = [ollivier_curv_vals]
         edge_feat_list = [ollivier_curv_vals, forman_curv_vals]
