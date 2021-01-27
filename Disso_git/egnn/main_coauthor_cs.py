@@ -51,7 +51,7 @@ parser.add_argument('--weighted', action='store_true', default=False)
 parser.add_argument('--alpha', type=float, default=0)
 
 alpha_vals = np.linspace(0,0.5,11)
-curvature_mapping_alpha = [1,4]
+curvature_mapping_alpha = [1.0,4.0]
 normalization = ['dsm','row']
 
 test_accs = np.zeros((len(alpha_vals),len(curvature_mapping_alpha),len(normalization)))
@@ -66,6 +66,8 @@ else:
 
 for idx, param_tup in enumerated_product(alpha_vals, curvature_mapping_alpha,normalization):
         alpha_val,curv_mapping_alpha,norm = param_tup
+        print("curv_mapping_alpha", curv_mapping_alpha)
+        print(type(curv_mapping_alpha))
         args.alpha = alpha_val
         args.edge_norm = norm
         print("params", param_tup)
