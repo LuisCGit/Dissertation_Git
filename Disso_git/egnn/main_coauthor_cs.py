@@ -216,7 +216,7 @@ for idx, param_tup in enumerated_product(alpha_vals, curvature_mapping_alpha,nor
         #with tf.Session() as sess:
         #    sess.run(tf.global_variables_initializer())
 
-
+        print("here before sess")
         with tf.Session() as sess:
             sess.run(init_op)# feed_dict = {edges_plhdr:layer(args.layer_type, (h, edges), 64, training, args, activation=tf.nn.elu)[1]})
             #sess.run(edges_layer.assign(edges_plhdr), {edges_plhdr: edges_init})
@@ -259,6 +259,7 @@ for idx, param_tup in enumerated_product(alpha_vals, curvature_mapping_alpha,nor
             # evaluation step
             # load check point
             if not args.no_test or nan_happend:
+                print("here before saver restore")
                 saver.restore(sess, str(ckpt_path))
                 print("Y shape")
                 print(Y.shape)

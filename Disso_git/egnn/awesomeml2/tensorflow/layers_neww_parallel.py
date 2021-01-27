@@ -70,6 +70,7 @@ class Layer(tf.layers.Layer):
         """A wrapper of self.add_variable that use self.bias_initializer etc as default
         """
         keys = ['initializer', 'regularizer', 'constraint']
+        print("before line 74")
         for key in keys:
             if key in kwargs:
                 raise KeyError('argument '+key+' specified for add_kernel '
@@ -158,11 +159,15 @@ class BiasAdd(tf.layers.Layer):
         super().build(input_shape)
 
     def call(self, input):
+        print("here in line 162")
         return _tf_nn.bias_add(input, self.bias, self.axis)
 
 def bias_add(input, *args, **kwargs):
     """Functional version of BiasAdd layer
     """
+    print("here in line 168")
+    print("*args,", *args)
+    print("*kwargs,", **kwargs)
     layer = BiasAdd(*args, **kwargs)
     return layer.apply(input)
 
