@@ -8,7 +8,7 @@ from .. import utils as _utils
 
 def bias_add(value, bias, axis=-1):
     """Add `bias` to the specified axis (axes) of `value`
-    
+
     Args:
 
       value (tensor_like): input tensor
@@ -16,7 +16,7 @@ def bias_add(value, bias, axis=-1):
       bias (tensor_like): bias tensor to add
 
       axis (int, Seq[int]): axis (axes) to add the bias
-    
+
     Return:
 
       Tensor: Resultant Tensor with bias added to input
@@ -74,5 +74,7 @@ def bias_add(value, bias, axis=-1):
     bias_new_shape = [1] * ndims
     for i, axis_1 in enumerate(axis):
         bias_new_shape[axis_1] = bias_shape[i]
+    print("bias", bias)
+    print("bias_new_shape", bias_new_shape)
     bias = tf.reshape(bias, bias_new_shape)
     return tf.add(value, bias)
