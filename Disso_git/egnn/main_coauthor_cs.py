@@ -64,7 +64,7 @@ if __name__ == '__main__' and '__file__' in globals():
 else:
     args = parser.parse_args([])
 
-for idx, param_tup in enumerated_product(alpha_vals, curvature_mapping_alpha):
+for idx, param_tup in enumerated_product(alpha_vals, curvature_mapping_alpha,normalization):
         alpha_val,curv_mapping_alpha,norm = param_tup
         args.alpha = alpha_val
         args.edge_norm = norm
