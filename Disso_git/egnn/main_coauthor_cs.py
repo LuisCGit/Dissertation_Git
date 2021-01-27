@@ -25,6 +25,7 @@ from prepare_data import G_from_data_file, map_curvature_val
 from GraphRicciCurvature.OllivierRicci import OllivierRicci
 from GraphRicciCurvature.FormanRicci import FormanRicci
 from scipy.sparse import csr_matrix
+from itertools import product
 
 # ************************************************************
 # args
@@ -51,8 +52,9 @@ parser.add_argument('--alpha', type=float, default=0)
 
 alpha_vals = np.linspace(0,0.5,11)
 curvature_mapping_alpha = [1,4]
+normalization = ['dsm','row']
 
-test_accs = np.zeros((len(alpha_vals),len(curvature_mapping_alpha)))
+test_accs = np.zeros((len(alpha_vals),len(curvature_mapping_alpha),len(normalization)))
 
 def enumerated_product(*args):
     yield from zip(product(*(range(len(x)) for x in args)), product(*args))
@@ -63,8 +65,9 @@ else:
     args = parser.parse_args([])
 
 for idx, param_tup in enumerated_product(alpha_vals, curvature_mapping_alpha):
-        alpha_val,curv_mapping_alpha = param_tup
+        alpha_val,curv_mapping_alpha,norm = param_tup
         args.alpha = alpha_val
+        args.edge_norm = norm
         print("params", param_tup)
 
 
