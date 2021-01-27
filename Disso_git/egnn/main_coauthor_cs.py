@@ -244,7 +244,7 @@ for idx, param_tup in enumerated_product(alpha_vals, curvature_mapping_alpha,nor
                 if loss_val_np <= loss_stop:
                     bad_epochs = 0
                     if not args.no_test:
-                        #saver.save(sess, str(ckpt_path))
+                        saver.save(sess, str(ckpt_path))
                         pass
                     loss_stop = loss_val_np
                     acc_stop = acc_val
