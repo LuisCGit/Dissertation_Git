@@ -35,6 +35,16 @@ def map_curvature_val(curvature,alpha=1):
     """
     return np.exp(alpha*curvature)/(np.exp(alpha*curvature)+1)
 
+def map_curvature_val_tan(curvature,alpha=1):
+    """
+    maps a curvature value x from R (real line) to [-1,1] via the map f(x) = arctan(x) * 2/pi.
+    @param curvature: a curvature value (scalar)
+    @param alpha: adjustable hyperparameter
+
+    @return: returns f(curvature)
+    """
+    return np.arctan(x) * 2/np.pi
+
 
 data_dir = Path('data_luis')
 data_dir.mkdir(parents=True, exist_ok=True)
