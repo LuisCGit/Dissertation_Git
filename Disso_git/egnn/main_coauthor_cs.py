@@ -54,7 +54,7 @@ alpha_vals = np.linspace(0,0.5,11)
 curvature_mapping_alpha = [1.0,4.0]
 normalization = ['dsm','row']
 
-test_accs = np.zeros((len(alpha_vals),len(curvature_mapping_alpha),len(normalization)))
+test_accs = np.zeros((len(alpha_vals),len(curvature_mapping_alpha),len(normalization), args.epochs))
 
 data = tf.placeholder(tf.float32)
 ds = tf.data.Dataset.from_tensor_slices(data)

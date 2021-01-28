@@ -88,7 +88,7 @@ edge_feat_list = [ollivier_curv_vals,forman_curv_vals]
 ########################################### END ###########################################
 
 #datasets = ['citeseer'] #,'pubmed']
-test_accs = np.zeros((len(alpha_vals),len(normalization)))
+test_accs = np.zeros((len(alpha_vals),len(normalization),args.epochs))
 for idx, param_tup in enumerated_product(alpha_vals,normalization):
     print("param tup: ", param_tup)
     alpha_val, norm = param_tup
@@ -209,6 +209,12 @@ for idx, param_tup in enumerated_product(alpha_vals,normalization):
                 feed_dict={training:False})
             acc_train = utils.calc_acc(Y, Yhat_np, idx_train)
             acc_val = utils.calc_acc(Y, Yhat_np, idx_val)
+            acc_test = utils.calc_acc(Y, Yhat_np, idx_test)
+            print("test acc", acc_test)
+            idx = idx + (epoch)
+
+            test_accs[idx] = acc_test
+            np.save("egnn_test_citeseer_params",test_accs)
 
             if np.isnan(loss_train_np):
                 nan_happend = True
@@ -217,27 +223,27 @@ for idx, param_tup in enumerated_product(alpha_vals,normalization):
 
             print('Epoch=%d, loss=%.4f, acc=%.4f | val: loss=%.4f, acc=%.4f t=%.4f' %
                   (epoch, loss_train_np, acc_train, loss_val_np, acc_val, time.time()-t))
-            if loss_val_np <= loss_stop:
-                bad_epochs = 0
-                if not args.no_test:
-                    saver.save(sess, str(ckpt_path))
-                loss_stop = loss_val_np
-                acc_stop = acc_val
-            else:
-                bad_epochs += 1
-                if bad_epochs == args.patience:
-                    print('Early stop - loss=%.4f acc=%.4f' % (loss_stop, acc_stop))
-                    print('totoal time {}'.format(
-                        datetime.timedelta(seconds=time.time()-t0)))
-                    break
+            # if loss_val_np <= loss_stop:
+            #     bad_epochs = 0
+            #     if not args.no_test:
+            #         saver.save(sess, str(ckpt_path))
+            #     loss_stop = loss_val_np
+            #     acc_stop = acc_val
+            # else:
+            #     bad_epochs += 1
+            #     if bad_epochs == args.patience:
+            #         print('Early stop - loss=%.4f acc=%.4f' % (loss_stop, acc_stop))
+            #         print('totoal time {}'.format(
+            #             datetime.timedelta(seconds=time.time()-t0)))
+            #         break
 
         # evaluation step
         # load check point
-        if not args.no_test or nan_happend:
-            saver.restore(sess, str(ckpt_path))
-            [loss_test_np, Yhat_np] = sess.run(
-                [loss_test, Yhat], feed_dict={training:False})
-            acc = utils.calc_acc(Y, Yhat_np, idx_test)
-            print('Testing - loss=%.4f acc=%.4f' % (loss_test_np, acc))
-        test_accs[idx] = acc
-        np.save("egnn_test_citeseer_params",test_accs)
+        # if not args.no_test or nan_happend:
+        #     saver.restore(sess, str(ckpt_path))
+        #     [loss_test_np, Yhat_np] = sess.run(
+        #         [loss_test, Yhat], feed_dict={training:False})
+        #     acc = utils.calc_acc(Y, Yhat_np, idx_test)
+        #     print('Testing - loss=%.4f acc=%.4f' % (loss_test_np, acc))
+        # test_accs[idx] = acc
+        # np.save("egnn_test_citeseer_params",test_accs)
