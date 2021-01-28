@@ -3,7 +3,7 @@ import sklearn,sklearn.metrics,sklearn.cluster
 import tensorflow as tf
 import awesomeml2 as aml
 import awesomeml2.utils as aml_utils
-import awesomeml2.tensorflow.layers as aml_layers
+import awesomeml2.tensorflow.layers_neww_parallel as aml_layers
 import pickle
 #import awesomeml2.tensorflow.layers_neww as aml_layers
 
@@ -22,7 +22,7 @@ from prepare_data import G_from_data_file, map_curvature_val
 from GraphRicciCurvature.OllivierRicci import OllivierRicci
 from GraphRicciCurvature.FormanRicci import FormanRicci
 from scipy.sparse import csr_matrix
-
+from itertools import product
 # ************************************************************
 # args
 # ************************************************************
@@ -47,6 +47,12 @@ parser.add_argument('--weighted', action='store_true', default=False)
 
 #Luis added args
 parser.add_argument('--num-trials', type=int, default=1)
+alpha_vals = np.linspace(0,0.5,11)
+normalization = ['dsm','row']
+
+def enumerated_product(*args):
+    yield from zip(product(*(range(len(x)) for x in args)), product(*args))
+
 
 if __name__ == '__main__' and '__file__' in globals():
     args = parser.parse_args()
@@ -54,19 +60,40 @@ else:
     args = parser.parse_args([])
 print(args)
 
-datasets = ['citeseer'] #,'pubmed']
-test_accs = np.zeros((len(datasets),args.num_trials))
-for dataset_no,dataset in enumerate(datasets):
+dataset = 'citeseer'
+
+# ************************************************************
+# load data
+# ************************************************************
+X, Y, A, idx_train, idx_val, idx_test = utils.load_data(args,dataset)
+K = A.shape[1] if X is None else X.shape[0]
+nC = Y.shape[1]
+W = None
+if args.weighted:
+    W = utils.calc_class_weights(Y[...,idx_train,:])
+
+########################################### TRYING TO REPLACE A WITH RICCI CURVATURE ###########################################
+G = G_from_data_file(dataset)
+ollivier_curv_vals, forman_curv_vals = csr_matrix(A.shape).toarray(), csr_matrix(A.shape).toarray()
+orc = OllivierRicci(G, alpha=0.5, verbose="INFO")
+orc.compute_ricci_curvature()
+frc = FormanRicci(G)
+frc.compute_ricci_curvature()
+for tup in orc.G.edges:
+    i,j = tup[0], tup[1]
+    ollivier_curv_vals[i][j] = map_curvature_val(orc.G[i][j]['ricciCurvature'],alpha = 4)
+    forman_curv_vals[i][j] = map_curvature_val(frc.G[i][j]['formanCurvature'],alpha = 4)
+
+edge_feat_list = [ollivier_curv_vals,forman_curv_vals]
+########################################### END ###########################################
+
+#datasets = ['citeseer'] #,'pubmed']
+test_accs = np.zeros((len(alpha_vals),len(normalization)))
+for idx, param_tup in enumerated_product(alpha_vals,normalization):
+    alpha_val, norm = param_tup
+    args.edge_norm = norm
     print("dataset_iteration")
-    # ************************************************************
-    # load data
-    # ************************************************************
-    X, Y, A, idx_train, idx_val, idx_test = utils.load_data(args,dataset)
-    K = A.shape[1] if X is None else X.shape[0]
-    nC = Y.shape[1]
-    W = None
-    if args.weighted:
-        W = utils.calc_class_weights(Y[...,idx_train,:])
+
 
     # ************************************************************
     # calculate node features
@@ -89,21 +116,7 @@ for dataset_no,dataset in enumerate(datasets):
     # ************************************************************
     vals = []
     EYE = scipy.sparse.eye(K, dtype=np.float32, format='coo')
-    ########################################### TRYING TO REPLACE A WITH RICCI CURVATURE ###########################################
-    G = G_from_data_file(dataset)
-    ollivier_curv_vals, forman_curv_vals = csr_matrix(A.shape).toarray(), csr_matrix(A.shape).toarray()
-    orc = OllivierRicci(G, alpha=0.5, verbose="INFO")
-    orc.compute_ricci_curvature()
-    frc = FormanRicci(G)
-    frc.compute_ricci_curvature()
-    for tup in orc.G.edges:
-        i,j = tup[0], tup[1]
-        ollivier_curv_vals[i][j] = map_curvature_val(orc.G[i][j]['ricciCurvature'])
-        forman_curv_vals[i][j] = map_curvature_val(frc.G[i][j]['formanCurvature'])
 
-    edge_feat_list = [ollivier_curv_vals,forman_curv_vals]
-    #edge_feat_list = [forman_curv_vals]
-    ########################################### END ###########################################
     for mat in edge_feat_list:
         vals.append((mat+mat.transpose()+EYE>0).astype(np.float32))
         if args.encode_edge_direction:
@@ -145,13 +158,13 @@ for dataset_no,dataset in enumerate(datasets):
 
     # input layer
     training = tf.placeholder(dtype=tf.bool, shape=())
-    h, edges = nodes, edges
+    h, E0, E1 = nodes, edges[:,:,0], edges[:,:,1]
 
     # hidden layers
-    h, edges = layer(args.layer_type, (h, edges), 64, training, args, activation=tf.nn.elu)
+    h, E0, E1 = layer(args.layer_type, (h, E0, E1, alpha_val), 64, training, args, activation=tf.nn.elu)
 
     # classification layer
-    logits,_ = layer(args.layer_type, (h, edges), nC, training, args,
+    logits,_,_ = layer(args.layer_type, (h, E0, E1, alpha_val), nC, training, args,
                      multi_edge_aggregation='mean')
     Yhat = tf.one_hot(tf.argmax(logits, axis=-1), nC)
     loss_train = utils.calc_loss(Y, logits, idx_train, W=W)
@@ -175,56 +188,55 @@ for dataset_no,dataset in enumerate(datasets):
     ckpt_dir.mkdir(parents=True, exist_ok=True)
     ckpt_path = ckpt_dir/'checkpoint.ckpt'
     print('ckpt_path=', ckpt_path)
-    for j in range(args.num_trials):
-        bad_epochs = 0
-        loss_stop = math.inf
-        acc_stop = -math.inf
-        saver = tf.train.Saver()
-        nan_happend = False
-        with tf.Session() as sess:
-            sess.run(init_op)
+    bad_epochs = 0
+    loss_stop = math.inf
+    acc_stop = -math.inf
+    saver = tf.train.Saver()
+    nan_happend = False
+    with tf.Session() as sess:
+        sess.run(init_op)
 
-            t0 = time.time()
-            for epoch in range(args.epochs):
-                t = time.time()
-                # training step
-                sess.run([train_op], feed_dict={training:True})
+        t0 = time.time()
+        for epoch in range(args.epochs):
+            t = time.time()
+            # training step
+            sess.run([train_op], feed_dict={training:True})
 
-                # validation step
-                [loss_train_np, loss_val_np, Yhat_np] = sess.run(
-                    [loss_train, loss_val, Yhat],
-                    feed_dict={training:False})
-                acc_train = utils.calc_acc(Y, Yhat_np, idx_train)
-                acc_val = utils.calc_acc(Y, Yhat_np, idx_val)
+            # validation step
+            [loss_train_np, loss_val_np, Yhat_np] = sess.run(
+                [loss_train, loss_val, Yhat],
+                feed_dict={training:False})
+            acc_train = utils.calc_acc(Y, Yhat_np, idx_train)
+            acc_val = utils.calc_acc(Y, Yhat_np, idx_val)
 
-                if np.isnan(loss_train_np):
-                    nan_happend = True
-                    print('NaN loss, stop!')
+            if np.isnan(loss_train_np):
+                nan_happend = True
+                print('NaN loss, stop!')
+                break
+
+            print('Epoch=%d, loss=%.4f, acc=%.4f | val: loss=%.4f, acc=%.4f t=%.4f' %
+                  (epoch, loss_train_np, acc_train, loss_val_np, acc_val, time.time()-t))
+            if loss_val_np <= loss_stop:
+                bad_epochs = 0
+                if not args.no_test:
+                    saver.save(sess, str(ckpt_path))
+                loss_stop = loss_val_np
+                acc_stop = acc_val
+            else:
+                bad_epochs += 1
+                if bad_epochs == args.patience:
+                    print('Early stop - loss=%.4f acc=%.4f' % (loss_stop, acc_stop))
+                    print('totoal time {}'.format(
+                        datetime.timedelta(seconds=time.time()-t0)))
                     break
 
-                print('Epoch=%d, loss=%.4f, acc=%.4f | val: loss=%.4f, acc=%.4f t=%.4f' %
-                      (epoch, loss_train_np, acc_train, loss_val_np, acc_val, time.time()-t))
-                if loss_val_np <= loss_stop:
-                    bad_epochs = 0
-                    if not args.no_test:
-                        saver.save(sess, str(ckpt_path))
-                    loss_stop = loss_val_np
-                    acc_stop = acc_val
-                else:
-                    bad_epochs += 1
-                    if bad_epochs == args.patience:
-                        print('Early stop - loss=%.4f acc=%.4f' % (loss_stop, acc_stop))
-                        print('totoal time {}'.format(
-                            datetime.timedelta(seconds=time.time()-t0)))
-                        break
-
-            # evaluation step
-            # load check point
-            if not args.no_test or nan_happend:
-                saver.restore(sess, str(ckpt_path))
-                [loss_test_np, Yhat_np] = sess.run(
-                    [loss_test, Yhat], feed_dict={training:False})
-                acc = utils.calc_acc(Y, Yhat_np, idx_test)
-                print('Testing - loss=%.4f acc=%.4f' % (loss_test_np, acc))
-            test_accs[dataset_no,j] = acc
-            np.save("egnn_test_cora_citeseer_10trials",test_accs)
+        # evaluation step
+        # load check point
+        if not args.no_test or nan_happend:
+            saver.restore(sess, str(ckpt_path))
+            [loss_test_np, Yhat_np] = sess.run(
+                [loss_test, Yhat], feed_dict={training:False})
+            acc = utils.calc_acc(Y, Yhat_np, idx_test)
+            print('Testing - loss=%.4f acc=%.4f' % (loss_test_np, acc))
+        test_accs[idx] = acc
+        np.save("egnn_test_citeseer_params",test_accs)
