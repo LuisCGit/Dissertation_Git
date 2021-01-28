@@ -211,7 +211,7 @@ for idx, param_tup in enumerated_product(alpha_vals,normalization):
             acc_val = utils.calc_acc(Y, Yhat_np, idx_val)
             acc_test = utils.calc_acc(Y, Yhat_np, idx_test)
             print("test acc", acc_test)
-            idx = idx + (epoch)
+            idx = idx + tuple([epoch])
 
             test_accs[idx] = acc_test
             np.save("egnn_test_citeseer_params",test_accs)
