@@ -90,6 +90,7 @@ edge_feat_list = [ollivier_curv_vals,forman_curv_vals]
 #datasets = ['citeseer'] #,'pubmed']
 test_accs = np.zeros((len(alpha_vals),len(normalization)))
 for idx, param_tup in enumerated_product(alpha_vals,normalization):
+    print("param tup: ", param_tup)
     alpha_val, norm = param_tup
     args.edge_norm = norm
     print("dataset_iteration")
