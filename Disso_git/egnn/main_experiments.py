@@ -210,7 +210,7 @@ for idx, param_tup in enumerated_product(alpha_vals,normalization):
             acc_train = utils.calc_acc(Y, Yhat_np, idx_train)
             acc_val = utils.calc_acc(Y, Yhat_np, idx_val)
             acc_test = utils.calc_acc(Y, Yhat_np, idx_test)
-            print(idx + tuple([epoch]))
+            print("TEST ASS")
 
             test_accs[idx + tuple([epoch])] = acc_test
             np.save("egnn_test_citeseer_params",test_accs)
@@ -220,21 +220,21 @@ for idx, param_tup in enumerated_product(alpha_vals,normalization):
                 print('NaN loss, stop!')
                 break
 
-            print('Epoch=%d, loss=%.4f, acc=%.4f | val: loss=%.4f, acc=%.4f t=%.4f' %
-                  (epoch, loss_train_np, acc_train, loss_val_np, acc_val, time.time()-t))
-            # if loss_val_np <= loss_stop:
-            #     bad_epochs = 0
-            #     if not args.no_test:
-            #         saver.save(sess, str(ckpt_path))
-            #     loss_stop = loss_val_np
-            #     acc_stop = acc_val
-            # else:
-            #     bad_epochs += 1
-            #     if bad_epochs == args.patience:
-            #         print('Early stop - loss=%.4f acc=%.4f' % (loss_stop, acc_stop))
-            #         print('totoal time {}'.format(
-            #             datetime.timedelta(seconds=time.time()-t0)))
-            #         break
+            print('Epoch=%d, loss=%.4f, acc=%.4f | val: loss=%.4f, acc=%.4f | test acc=%.4f t=%.4f' %
+                  (epoch, loss_train_np, acc_train, loss_val_np, acc_val, acc_test, time.time()-t))
+            if loss_val_np <= loss_stop:
+                bad_epochs = 0
+                # if not args.no_test:
+                #     saver.save(sess, str(ckpt_path))
+                loss_stop = loss_val_np
+                acc_stop = acc_val
+            else:
+                bad_epochs += 1
+                if bad_epochs == args.patience:
+                    print('Early stop - loss=%.4f acc=%.4f' % (loss_stop, acc_stop))
+                    print('totoal time {}'.format(
+                        datetime.timedelta(seconds=time.time()-t0)))
+                    break
 
         # evaluation step
         # load check point
