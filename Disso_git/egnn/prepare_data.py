@@ -18,7 +18,7 @@ from GraphRicciCurvature.FormanRicci import FormanRicci
 
 def G_from_data_file(dataset):
     file_name = "data/" + dataset
-    X,A,Y,ids = np.load(file_name)
+    X,A,Y,ids = np.load(file_name, allow_pickle = True)
     G = nx.convert_matrix.from_scipy_sparse_matrix(A,create_using=nx.DiGraph)
     Y_idx = np.argmax(Y,axis=1)
     values_dict = {i:Y_idx[i] for i in range(2708)}
