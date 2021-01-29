@@ -54,7 +54,7 @@ alpha_vals = np.linspace(0,0.5,11)
 curvature_mapping_alpha = [1.0,4.0]
 normalization = ['dsm','row']
 
-test_accs = np.zeros((len(alpha_vals),len(curvature_mapping_alpha),len(normalization), args.epochs))
+results = np.zeros((len(alpha_vals),len(curvature_mapping_alpha),len(normalization), args.epochs, args.epochs, args.epochs)) #val loss, val acc, tes acc
 
 data = tf.placeholder(tf.float32)
 ds = tf.data.Dataset.from_tensor_slices(data)
@@ -239,19 +239,24 @@ for idx, param_tup in enumerated_product(alpha_vals, curvature_mapping_alpha,nor
                     feed_dict={training:False}) #edges_plhdr:layer(args.layer_type, (h, edges), 64, training, args, activation=tf.nn.elu)[1]})
                 acc_train = utils.calc_acc(Y, Yhat_np, idx_train)
                 acc_val = utils.calc_acc(Y, Yhat_np, idx_val)
+                acc_test = utils.calc_acc(Y, Yhat_np, idx_test)
+
+                results[idx + tuple([epoch,0])] = loss_val_np
+                results[idx + tuple([epoch,1])] = acc_val
+                results[idx + tuple([epoch,2])] = acc_test
+                np.save("egnn_test_coauthor_CS_params",results)
 
                 if np.isnan(loss_train_np):
                     nan_happend = True
                     print('NaN loss, stop!')
                     break
 
-                print('Epoch=%d, loss=%.4f, acc=%.4f | val: loss=%.4f, acc=%.4f t=%.4f' %
-                      (epoch, loss_train_np, acc_train, loss_val_np, acc_val, time.time()-t))
+                print('Epoch=%d, loss=%.4f, acc=%.4f | val: loss=%.4f, acc=%.4f | test acc=%.4f t=%.4f' %
+                      (epoch, loss_train_np, acc_train, loss_val_np, acc_val, acc_test, time.time()-t))
                 if loss_val_np <= loss_stop:
                     bad_epochs = 0
                     if not args.no_test:
-                        print("GraphDef", tf.GraphDef())
-                        saver.save(sess, str(ckpt_path))
+                        #saver.save(sess, str(ckpt_path))
                         pass
                     loss_stop = loss_val_np
                     acc_stop = acc_val
@@ -265,18 +270,18 @@ for idx, param_tup in enumerated_product(alpha_vals, curvature_mapping_alpha,nor
 
             # evaluation step
             # load check point
-            if not args.no_test or nan_happend:
-                print("here before saver restore")
-                saver.restore(sess, str(ckpt_path))
-                print("Y shape")
-                print(Y.shape)
-                print("Y hat shape")
-                print(Yhat_np.shape)
-                [loss_test_np, Yhat_np] = sess.run(
-                    [loss_test, Yhat], feed_dict={training:False})
-
-                acc = utils.calc_acc(Y, Yhat_np, idx_test)
-                test_accs[idx] = acc
-                np.save("egnn_test_coauthCS_params_dense",test_accs)
-                print('Testing - loss=%.4f acc=%.4f' % (loss_test_np, acc))
-                print("made to test phase")
+            # if not args.no_test or nan_happend:
+            #     print("here before saver restore")
+            #     saver.restore(sess, str(ckpt_path))
+            #     print("Y shape")
+            #     print(Y.shape)
+            #     print("Y hat shape")
+            #     print(Yhat_np.shape)
+            #     [loss_test_np, Yhat_np] = sess.run(
+            #         [loss_test, Yhat], feed_dict={training:False})
+            #
+            #     acc = utils.calc_acc(Y, Yhat_np, idx_test)
+            #     test_accs[idx] = acc
+            #     np.save("egnn_test_coauthCS_params_dense",test_accs)
+            #     print('Testing - loss=%.4f acc=%.4f' % (loss_test_np, acc))
+            #     print("made to test phase")
