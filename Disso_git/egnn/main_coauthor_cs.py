@@ -54,7 +54,6 @@ alpha_vals = np.linspace(0,0.5,11)
 curvature_mapping_alpha = [1.0,4.0]
 normalization = ['dsm','row']
 
-results = np.zeros((len(alpha_vals),len(curvature_mapping_alpha),len(normalization), args.epochs, args.epochs, args.epochs)) #val loss, val acc, tes acc
 
 data = tf.placeholder(tf.float32)
 ds = tf.data.Dataset.from_tensor_slices(data)
@@ -68,6 +67,9 @@ if __name__ == '__main__' and '__file__' in globals():
     args = parser.parse_args()
 else:
     args = parser.parse_args([])
+
+results = np.zeros((len(alpha_vals),len(curvature_mapping_alpha),len(normalization), args.epochs, args.epochs, args.epochs)) #val loss, val acc, tes acc
+
 
 for idx, param_tup in enumerated_product(alpha_vals, curvature_mapping_alpha,normalization):
         alpha_val,curv_mapping_alpha,norm = param_tup
