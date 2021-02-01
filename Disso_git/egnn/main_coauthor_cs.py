@@ -32,7 +32,7 @@ from itertools import product
 # ************************************************************
 parser = argparse.ArgumentParser()
 # general
-parser.add_argument('--epochs', type=int, default=1)
+parser.add_argument('--epochs', type=int, default=1000)
 parser.add_argument('--patience', type=int, default=100)
 parser.add_argument('--no-test', action='store_true', default=False)
 parser.add_argument('--lr', type=float, default=0.005)
