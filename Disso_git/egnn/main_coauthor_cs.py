@@ -246,7 +246,7 @@ for idx, param_tup in enumerated_product(alpha_vals, curvature_mapping_alpha,nor
                 # results[idx + tuple([epoch,1])] = acc_val
                 # results[idx + tuple([epoch,2])] = acc_test
 
-                results[idx + tuple([epoch,epoch,epoch)] = np.array([loss_val,acc_val,acc_test])
+                results[idx + tuple([epoch,epoch,epoch]) = np.array([loss_val,acc_val,acc_test])
 
                 np.save("egnn_test_coauthor_CS_params",results)
 
