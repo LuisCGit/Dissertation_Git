@@ -70,7 +70,6 @@ else:
 
 results = np.zeros((len(alpha_vals),len(curvature_mapping_alpha),len(normalization), args.epochs, args.epochs, args.epochs)) #val loss, val acc, tes acc
 
-
 for idx, param_tup in enumerated_product(alpha_vals, curvature_mapping_alpha,normalization):
         alpha_val,curv_mapping_alpha,norm = param_tup
         args.alpha = alpha_val
@@ -243,9 +242,12 @@ for idx, param_tup in enumerated_product(alpha_vals, curvature_mapping_alpha,nor
                 acc_val = utils.calc_acc(Y, Yhat_np, idx_val)
                 acc_test = utils.calc_acc(Y, Yhat_np, idx_test)
 
-                results[idx + tuple([epoch,0])] = loss_val_np
-                results[idx + tuple([epoch,1])] = acc_val
-                results[idx + tuple([epoch,2])] = acc_test
+                # results[idx + tuple([epoch,0])] = loss_val_np
+                # results[idx + tuple([epoch,1])] = acc_val
+                # results[idx + tuple([epoch,2])] = acc_test
+
+                results[idx + tuple([epoch,epoch,epoch)] = np.array([loss_val,acc_val,acc_test])
+
                 np.save("egnn_test_coauthor_CS_params",results)
 
                 if np.isnan(loss_train_np):
