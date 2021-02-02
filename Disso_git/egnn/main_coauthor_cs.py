@@ -80,9 +80,11 @@ for idx, param_tup in enumerated_product(alpha_vals, curvature_mapping_alpha,nor
         # ************************************************************
         # load data
         # ************************************************************
-        A = np.random.uniform(size=(18333,18333))
-        with open('data_coauthor_' + 'CS' + '/' + 'CS' + '/curvatures_and_idx/curv_idx','rb') as f:
+        with open('data_coauthor_' + data.args + '/' + data.args + '/curvatures_and_idx/curv_idx','rb') as f:
             X,Y,idx_train,idx_val,idx_test,orc,frc = pickle.load(f)
+
+        A = np.random.uniform(size=(X.shape[0],X.shape[0]))
+
 
         K = A.shape[1] if X is None else X.shape[0]
         nC = Y.shape[1]
@@ -246,7 +248,7 @@ for idx, param_tup in enumerated_product(alpha_vals, curvature_mapping_alpha,nor
                 results[idx + tuple([epoch,1])] = acc_val
                 results[idx + tuple([epoch,2])] = acc_test
 
-                np.save("egnn_test_coauthor_CS_params",results)
+                np.save("egnn_test_coauthor_ " + args.data + "_params",results)
 
                 if np.isnan(loss_train_np):
                     nan_happend = True
