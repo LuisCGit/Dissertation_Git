@@ -212,7 +212,7 @@ for idx, param_tup in enumerated_product(alpha_vals,normalization):
             acc_test = utils.calc_acc(Y, Yhat_np, idx_test)
 
             test_accs[idx + tuple([epoch])] = acc_test
-            np.save("egnn_test_citeseer_params",test_accs)
+            np.save("egnn_test_" + dataset + "_params",test_accs)
 
             if np.isnan(loss_train_np):
                 nan_happend = True
