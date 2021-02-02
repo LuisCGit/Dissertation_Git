@@ -60,7 +60,7 @@ else:
     args = parser.parse_args([])
 print(args)
 
-dataset = 'citeseer'
+dataset = args.data
 
 # ************************************************************
 # load data
