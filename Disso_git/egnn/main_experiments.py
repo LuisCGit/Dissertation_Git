@@ -48,6 +48,7 @@ parser.add_argument('--weighted', action='store_true', default=False)
 #Luis added args
 parser.add_argument('--num-trials', type=int, default=1)
 alpha_vals = np.linspace(0,0.5,11)
+curvature_mapping_alpha = [1.0,4.0]
 normalization = ['dsm','row']
 
 def enumerated_product(*args):
@@ -88,13 +89,11 @@ edge_feat_list = [ollivier_curv_vals,forman_curv_vals]
 ########################################### END ###########################################
 
 #datasets = ['citeseer'] #,'pubmed']
-test_accs = np.zeros((len(alpha_vals),len(normalization),args.epochs))
-for idx, param_tup in enumerated_product(alpha_vals,normalization):
+results = np.zeros((len(alpha_vals),len(curvature_mapping_alpha),len(normalization), args.epochs, 3)) #val loss, val acc, tes acc
+for idx, param_tup in enumerated_product(alpha_vals, curvature_mapping_alpha, normalization):
     print("param tup: ", param_tup)
-    alpha_val, norm = param_tup
+    alpha_val,curv_mapping_alpha,norm = param_tup
     args.edge_norm = norm
-    print("dataset_iteration")
-
 
     # ************************************************************
     # calculate node features
@@ -211,7 +210,10 @@ for idx, param_tup in enumerated_product(alpha_vals,normalization):
             acc_val = utils.calc_acc(Y, Yhat_np, idx_val)
             acc_test = utils.calc_acc(Y, Yhat_np, idx_test)
 
-            test_accs[idx + tuple([epoch])] = acc_test
+            results[idx + tuple([epoch,0])] = loss_val_np
+            results[idx + tuple([epoch,1])] = acc_val
+            results[idx + tuple([epoch,2])] = acc_test
+             
             np.save("egnn_test_" + dataset + "_params",test_accs)
 
             if np.isnan(loss_train_np):
