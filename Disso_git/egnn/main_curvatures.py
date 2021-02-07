@@ -22,6 +22,7 @@ from GraphRicciCurvature.OllivierRicci import OllivierRicci
 from GraphRicciCurvature.FormanRicci import FormanRicci
 from scipy.sparse import csr_matrix
 from itertools import product
+import pickle
 
 # ************************************************************
 # args
