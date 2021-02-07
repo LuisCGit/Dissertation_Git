@@ -59,6 +59,7 @@ for d, dataset in enumerate(datasets):
     if dataset == 'CS':
         with open('data_coauthor_' + dataset + '/' + dataset + '/curvatures_and_idx/curv_idx','rb') as f:
             X,Y,idx_train,idx_val,idx_test,orc,frc = pickle.load(f)
+            A = np.random.uniform(size=(X.shape[0],X.shape[0]))
             ollivier_curv_vals, forman_curv_vals = csr_matrix(A.shape).toarray(), csr_matrix(A.shape).toarray()
 
             for tup in orc.G.edges:
@@ -69,6 +70,7 @@ for d, dataset in enumerate(datasets):
     else:
         ########################################### TRYING TO REPLACE A WITH RICCI CURVATURE ###########################################
         G = G_from_data_file(dataset)
+        X, Y, A, idx_train, idx_val, idx_test = utils.load_data(args)
         ollivier_curv_vals, forman_curv_vals = csr_matrix(A.shape).toarray(), csr_matrix(A.shape).toarray()
         orc = OllivierRicci(G, alpha=0.5, verbose="INFO")
         orc.compute_ricci_curvature()
