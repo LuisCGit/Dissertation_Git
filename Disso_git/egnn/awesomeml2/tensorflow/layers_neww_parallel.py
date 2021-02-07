@@ -301,13 +301,11 @@ class GraphConv(CompositeLayer):
 
     def node_aggregate(self, XDW, XDWD, ED0, ED1, E0, E1, alpha, training):  #-------- replaced 'ED' w ED0,ED1 and 'out_E' w E0, E1
         if len(E0.shape)+1 == XDW.get_shape().ndims: #--------  changed for PP if E.get_shape().ndims == XDW.get_shape().ndims:
-            print("we expanding")
             #ED = tf.expand_dims(ED, -3)
             #--------ADDED FOR PP
             ED0, ED1 = tf.expand_dims(ED0,-3) , tf.expand_dims(ED1,-3)
             #--------
         else:
-            print("we move")
             #ED = _tf_ops.moveaxis(ED, -1, -3)
             #--------ADDED FOR PP
             ED0, ED1 = _tf_ops.moveaxis(ED0, -1, -3) , _tf_ops.moveaxis(ED1, -1, -3)

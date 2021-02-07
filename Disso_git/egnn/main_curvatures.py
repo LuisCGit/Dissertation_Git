@@ -3,8 +3,8 @@ import sklearn,sklearn.metrics,sklearn.cluster
 import tensorflow as tf
 import awesomeml2 as aml
 import awesomeml2.utils as aml_utils
-#import awesomeml2.tensorflow.layers as aml_layers
-import awesomeml2.tensorflow.layers_neww as aml_layers
+import awesomeml2.tensorflow.layers as aml_layers
+import awesomeml2.tensorflow.layers_neww as aml_layers_p
 
 import awesomeml2.tensorflow.ops as aml_tf_ops
 import awesomeml2.graph as aml_graph
@@ -143,9 +143,14 @@ for d, dataset in enumerate(datasets):
             """A wrapper to dispatch different layer construction
             """
             if layer_type.lower() == 'gcn':
-                return aml_layers.graph_conv(
-                    inputs, dim, training,
-                    **kwargs)
+                if curv == 'both':
+                    return aml_layers_p.graph_conv(
+                        inputs, dim, training,
+                        **kwargs)
+                else:
+                    return aml_layers.graph_conv(
+                        inputs, dim, training,
+                        **kwargs)
             elif layer_type.lower() == 'gat':
                 return aml_layers.graph_attention(
                     inputs, dim, training,
@@ -159,17 +164,26 @@ for d, dataset in enumerate(datasets):
 
         # reset computing graph
         tf.reset_default_graph()
-
-        # input layer
         training = tf.placeholder(dtype=tf.bool, shape=())
-        h, E0, E1 = nodes, edges[:,:,0], edges[:,:,1]
 
-        # hidden layers
-        h, E0, E1 = layer(args.layer_type, (h, E0, E1, 0), 64, training, args, activation=tf.nn.elu)
+        if curv == 'both':
+            # input layer
+            h, E0, E1 = nodes, edges[:,:,0], edges[:,:,1]
 
-        # classification layer
-        logits,_,_ = layer(args.layer_type, (h, E0, E1, 0), nC, training, args,
-                         multi_edge_aggregation='mean')
+            # hidden layers
+            h, E0, E1 = layer(args.layer_type, (h, E0, E1, 0), 64, training, args, activation=tf.nn.elu)
+
+            # classification layer
+            logits,_,_ = layer(args.layer_type, (h, E0, E1, 0), nC, training, args,
+                             multi_edge_aggregation='mean')
+        else:
+            h, edges = nodes, edges
+            # hidden layers
+            h, edges = layer(args.layer_type, (h, edges), 64, training, args, activation=tf.nn.elu)
+
+            # classification layer
+            logits,_ = layer(args.layer_type, (h, edges), nC, training, args,
+                             multi_edge_aggregation='mean')
 
         Yhat = tf.one_hot(tf.argmax(logits, axis=-1), nC)
         loss_train = utils.calc_loss(Y, logits, idx_train, W=W)
