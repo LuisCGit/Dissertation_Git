@@ -234,7 +234,7 @@ for d, dataset in enumerate(datasets):
                     test_accs[d,i,j,epoch,0] = loss_val_np
                     test_accs[d,i,j,epoch,1] = acc_test
 
-                    np.save("egnn_test_coauthor_ " + args.data + "_params",results)
+                    np.save("egnn_cs_citeseer_pub_curvatures",test_accs)
 
                     if np.isnan(loss_train_np):
                         nan_happend = True
