@@ -230,6 +230,7 @@ for d, dataset in enumerate(datasets):
                         bad_epochs = 0
                         if not args.no_test:
                             #saver.save(sess, str(ckpt_path))
+                            pass
                         loss_stop = loss_val_np
                         acc_stop = acc_val
                     else:
