@@ -56,6 +56,7 @@ else:
 datasets = ['CS','citeseer','pubmed']
 test_accs = np.zeros((len(datasets),3,args.num_trials,args.epochs,2)) #loss val, acc test
 for d, dataset in enumerate(datasets):
+    print("dataset: ", datasets)
     if dataset == 'CS':
         with open('data_coauthor_' + dataset + '/' + dataset + '/curvatures_and_idx/curv_idx','rb') as f:
             X,Y,idx_train,idx_val,idx_test,orc,frc = pickle.load(f)
@@ -110,6 +111,7 @@ for d, dataset in enumerate(datasets):
 
     curvs_used = ['both','ollivier','forman']
     for i, curv in enumerate(curvs_used):
+        print("curv: ", curv)
         if curv == 'both':
             edge_feat_list = [ollivier_curv_vals,forman_curv_vals]
         elif curv == 'ollivier':
@@ -234,7 +236,7 @@ for d, dataset in enumerate(datasets):
                     test_accs[d,i,j,epoch,0] = loss_val_np
                     test_accs[d,i,j,epoch,1] = acc_test
 
-                    np.save("egnn_cs_citeseer_pub_curvatures",test_accs)
+                    np.save("egnn_cs_citeseer_pub_curvatures_5_trials",test_accs)
 
                     if np.isnan(loss_train_np):
                         nan_happend = True
