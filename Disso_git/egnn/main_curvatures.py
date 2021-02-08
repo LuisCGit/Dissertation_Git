@@ -4,7 +4,7 @@ import tensorflow as tf
 import awesomeml2 as aml
 import awesomeml2.utils as aml_utils
 import awesomeml2.tensorflow.layers as aml_layers
-import awesomeml2.tensorflow.layers_neww as aml_layers_p
+import awesomeml2.tensorflow.layers_neww_parallel as aml_layers_p
 
 import awesomeml2.tensorflow.ops as aml_tf_ops
 import awesomeml2.graph as aml_graph
@@ -108,7 +108,7 @@ for d, dataset in enumerate(datasets):
     EYE = scipy.sparse.eye(K, dtype=np.float32, format='coo')
 
 
-    curvs_used = ['ollivier','forman','both']
+    curvs_used = ['both','ollivier','forman']
     for i, curv in enumerate(curvs_used):
         if curv == 'both':
             edge_feat_list = [ollivier_curv_vals,forman_curv_vals]
