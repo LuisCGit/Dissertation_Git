@@ -105,7 +105,6 @@ for d, dataset in enumerate(datasets):
     # ************************************************************
     # calculate edge features
     # ************************************************************
-    vals = []
     EYE = scipy.sparse.eye(K, dtype=np.float32, format='coo')
 
 
@@ -118,6 +117,7 @@ for d, dataset in enumerate(datasets):
         else:
             edge_feat_list = [forman_curv_vals]
         ########################################### END ###########################################
+        vals = []
         for mat in edge_feat_list:
             vals.append((mat+mat.transpose()+EYE>0).astype(np.float32))
             if args.encode_edge_direction:
