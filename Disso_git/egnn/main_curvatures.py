@@ -53,10 +53,10 @@ if __name__ == '__main__' and '__file__' in globals():
 else:
     args = parser.parse_args([])
 
-datasets = ['CS','citeseer','pubmed']
+datasets = ['citeseer','pubmed'] #['CS',
 test_accs = np.zeros((len(datasets),3,args.num_trials,args.epochs,2)) #loss val, acc test
 for d, dataset in enumerate(datasets):
-    print("dataset: ", datasets)
+    print("dataset: ", dataset)
     if dataset == 'CS':
         with open('data_coauthor_' + dataset + '/' + dataset + '/curvatures_and_idx/curv_idx','rb') as f:
             X,Y,idx_train,idx_val,idx_test,orc,frc = pickle.load(f)
@@ -71,6 +71,7 @@ for d, dataset in enumerate(datasets):
     else:
         ########################################### TRYING TO REPLACE A WITH RICCI CURVATURE ###########################################
         G = G_from_data_file(dataset)
+        args.data = dataset
         X, Y, A, idx_train, idx_val, idx_test = utils.load_data(args)
         ollivier_curv_vals, forman_curv_vals = csr_matrix(A.shape).toarray(), csr_matrix(A.shape).toarray()
         orc = OllivierRicci(G, alpha=0.5, verbose="INFO")
