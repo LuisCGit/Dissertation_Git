@@ -53,7 +53,7 @@ if __name__ == '__main__' and '__file__' in globals():
 else:
     args = parser.parse_args([])
 
-datasets = ['citeseer','pubmed'] #['CS',
+datasets = ['CS'] #['pubmedm citeseer',
 test_accs = np.zeros((len(datasets),3,args.num_trials,args.epochs,2)) #loss val, acc test
 for d, dataset in enumerate(datasets):
     print("dataset: ", dataset)
@@ -237,7 +237,7 @@ for d, dataset in enumerate(datasets):
                     test_accs[d,i,j,epoch,0] = loss_val_np
                     test_accs[d,i,j,epoch,1] = acc_test
 
-                    np.save("egnn_cs_citeseer_pub_curvatures_5_trials",test_accs)
+                    np.save("egnn_cs_curvatures_5_trials",test_accs)
 
                     if np.isnan(loss_train_np):
                         nan_happend = True
