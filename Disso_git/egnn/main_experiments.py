@@ -93,7 +93,7 @@ results = np.zeros((len(alpha_vals),len(curvature_mapping_alpha),len(normalizati
 for idx, param_tup in enumerated_product(alpha_vals, curvature_mapping_alpha, normalization):
     print("param tup: ", param_tup)
     print("idx: ", idx)
-    alpha_val,curv_mapping_alpha,norm = 0, 1, 'row'#param_tup
+    alpha_val,curv_mapping_alpha,norm = alpha_vals[5], 1, 'row'#param_tup
     args.edge_norm = norm
 
     # ************************************************************
