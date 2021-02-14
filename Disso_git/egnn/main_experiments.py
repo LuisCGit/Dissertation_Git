@@ -92,7 +92,8 @@ edge_feat_list = [ollivier_curv_vals,forman_curv_vals]
 results = np.zeros((len(alpha_vals),len(curvature_mapping_alpha),len(normalization), args.epochs, 3)) #val loss, val acc, tes acc
 for idx, param_tup in enumerated_product(alpha_vals, curvature_mapping_alpha, normalization):
     print("param tup: ", param_tup)
-    alpha_val,curv_mapping_alpha,norm = param_tup
+    print("idx: ", idx)
+    alpha_val,curv_mapping_alpha,norm = 0, 1, 'row'#param_tup
     args.edge_norm = norm
 
     # ************************************************************
