@@ -248,7 +248,7 @@ for idx, param_tup in enumerated_product(alpha_vals, curvature_mapping_alpha,nor
                 results[idx + tuple([epoch,1])] = acc_val
                 results[idx + tuple([epoch,2])] = acc_test
 
-                np.save("egnn_test_coauthor_ " + args.data + "_params",results)
+                np.save("egnn_coauthor_ " + args.data + "_final_acc",results)
 
                 if np.isnan(loss_train_np):
                     nan_happend = True
