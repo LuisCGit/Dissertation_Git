@@ -71,7 +71,7 @@ else:
 results = np.zeros((len(alpha_vals),len(curvature_mapping_alpha),len(normalization), args.epochs, 3)) #val loss, val acc, tes acc
 
 for idx, param_tup in enumerated_product(alpha_vals, curvature_mapping_alpha,normalization):
-        alpha_val,curv_mapping_alpha,norm = param_tup
+        alpha_val,curv_mapping_alpha,norm = 0, 1, 'row'#param_tup
         args.alpha = alpha_val
         args.edge_norm = norm
         print("params", param_tup)
@@ -274,18 +274,19 @@ for idx, param_tup in enumerated_product(alpha_vals, curvature_mapping_alpha,nor
 
             # evaluation step
             # load check point
-            # if not args.no_test or nan_happend:
-            #     print("here before saver restore")
-            #     saver.restore(sess, str(ckpt_path))
-            #     print("Y shape")
-            #     print(Y.shape)
-            #     print("Y hat shape")
-            #     print(Yhat_np.shape)
-            #     [loss_test_np, Yhat_np] = sess.run(
-            #         [loss_test, Yhat], feed_dict={training:False})
-            #
-            #     acc = utils.calc_acc(Y, Yhat_np, idx_test)
-            #     test_accs[idx] = acc
-            #     np.save("egnn_test_coauthCS_params_dense",test_accs)
-            #     print('Testing - loss=%.4f acc=%.4f' % (loss_test_np, acc))
-            #     print("made to test phase")
+            if not args.no_test or nan_happend:
+                pass
+                # print("here before saver restore")
+                # saver.restore(sess, str(ckpt_path))
+                # print("Y shape")
+                # print(Y.shape)
+                # print("Y hat shape")
+                # print(Yhat_np.shape)
+                # [loss_test_np, Yhat_np] = sess.run(
+                #     [loss_test, Yhat], feed_dict={training:False})
+                #
+                # acc = utils.calc_acc(Y, Yhat_np, idx_test)
+                # test_accs[idx] = acc
+                # np.save("egnn_test_coauthCS_params_dense",test_accs)
+                # print('Testing - loss=%.4f acc=%.4f' % (loss_test_np, acc))
+                # print("made to test phase")
