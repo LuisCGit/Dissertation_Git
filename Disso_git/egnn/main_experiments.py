@@ -94,8 +94,7 @@ results = np.zeros((len(alpha_vals),args.trials,args.epochs,4))
 #(for hyperparam search)for idx, param_tup in enumerated_product(alpha_vals, curvature_mapping_alpha, normalization):
 for alpha_idx, alpha_val in enumerate(alpha_vals):
     for trial in range(args.trials):
-        print("param tup: ", param_tup)
-        print("idx: ", idx)
+        print("alpha_idx, trial: ", alpha_idx, trial)
         #below vals for pubmed
         #curv_mapping_alpha,norm = alpha_vals[5], 1, 'row'#param_tup
         #below vals for citeseer
