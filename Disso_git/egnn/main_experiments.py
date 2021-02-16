@@ -219,8 +219,8 @@ for alpha_idx, alpha_val in enumerate(alpha_vals):
                 # results[idx + tuple([epoch,0])] = loss_val_np
                 # results[idx + tuple([epoch,1])] = acc_val
                 # results[idx + tuple([epoch,2])] = acc_test
-                test_accs[alpha_idx,trial,epoch,0], test_accs[alpha_idx,trial,epoch,1] = loss_train_np, loss_val_np
-                test_accs[alpha_idx,trial,epoch,2], test_accs[alpha_idx,trial,epoch,3] =  acc_train, acc_val
+                results[alpha_idx,trial,epoch,0], results[alpha_idx,trial,epoch,1] = loss_train_np, loss_val_np
+                results[alpha_idx,trial,epoch,2], results[alpha_idx,trial,epoch,3] =  acc_train, acc_val
                 np.save("egnn_" + dataset + "_learncurvs",results)
 
                 if np.isnan(loss_train_np):
