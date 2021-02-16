@@ -46,7 +46,7 @@ parser.add_argument('--adaptive', action='store_true', default=False)
 parser.add_argument('--weighted', action='store_true', default=False)
 
 #Luis added args
-parser.add_argument('trials', type=int, default=5)
+parser.add_argument('--trials', type=int, default=5)
 alpha_vals = np.linspace(0,1,11)
 curvature_mapping_alpha = [1.0,4.0]
 normalization = ['dsm','row']
