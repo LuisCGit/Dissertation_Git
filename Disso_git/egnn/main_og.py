@@ -42,7 +42,10 @@ if __name__ == '__main__' and '__file__' in globals():
 else:
     args = parser.parse_args([])
 
-results = np.zeros((args.trials,args.epochs,4))
+#results = np.zeros((args.trials,args.epochs,4))
+train_vol_vals = [0.01,0.05,0.1,0.2,0.4,0.6,0.8]
+results = np.zeros((len(train_vol_vals),args.trials,args.epochs,4))
+
 # ************************************************************
 # load data
 # ************************************************************
@@ -140,66 +143,69 @@ init_op = tf.group(tf.global_variables_initializer(),
 # ************************************************************
 # training
 # ************************************************************
-for trial in range(args.trials):
+for tv, train_vol_val in enumerate(train_vol_vals):
+    for trial in range(args.trials):
 
-    ckpt_dir = Path('./ckpt')
-    ckpt_dir.mkdir(parents=True, exist_ok=True)
-    ckpt_path = ckpt_dir/'checkpoint.ckpt'
-    print('ckpt_path=', ckpt_path)
+        ckpt_dir = Path('./ckpt')
+        ckpt_dir.mkdir(parents=True, exist_ok=True)
+        ckpt_path = ckpt_dir/'checkpoint.ckpt'
+        print('ckpt_path=', ckpt_path)
 
-    bad_epochs = 0
-    loss_stop = math.inf
-    acc_stop = -math.inf
-    saver = tf.train.Saver()
-    nan_happend = False
-    with tf.Session() as sess:
-        sess.run(init_op)
+        bad_epochs = 0
+        loss_stop = math.inf
+        acc_stop = -math.inf
+        saver = tf.train.Saver()
+        nan_happend = False
+        with tf.Session() as sess:
+            sess.run(init_op)
 
-        t0 = time.time()
-        for epoch in range(args.epochs):
-            t = time.time()
-            # training step
-            sess.run([train_op], feed_dict={training:True})
+            t0 = time.time()
+            for epoch in range(args.epochs):
+                t = time.time()
+                # training step
+                sess.run([train_op], feed_dict={training:True})
 
-            # validation step
-            [loss_train_np, loss_val_np, Yhat_np] = sess.run(
-                [loss_train, loss_val, Yhat],
-                feed_dict={training:False})
-            acc_train = utils.calc_acc(Y, Yhat_np, idx_train)
-            acc_val = utils.calc_acc(Y, Yhat_np, idx_val)
-            acc_test = utils.calc_acc(Y, Yhat_np, idx_test)
+                # validation step
+                [loss_train_np, loss_val_np, Yhat_np] = sess.run(
+                    [loss_train, loss_val, Yhat],
+                    feed_dict={training:False})
+                acc_train = utils.calc_acc(Y, Yhat_np, idx_train)
+                acc_val = utils.calc_acc(Y, Yhat_np, idx_val)
+                acc_test = utils.calc_acc(Y, Yhat_np, idx_test)
 
-            results[trial,epoch,0], results[trial,epoch,1] = loss_train_np, loss_val_np
-            results[trial,epoch,2], results[trial,epoch,3] = acc_train, acc_val
-            np.save("og_" + args.data + "_learncurves",results)
-            if np.isnan(loss_train_np):
-                nan_happend = True
-                print('NaN loss, stop!')
-                break
-
-            print('Epoch=%d, loss=%.4f, acc=%.4f | val: loss=%.4f, acc=%.4f t=%.4f' %
-                  (epoch, loss_train_np, acc_train, loss_val_np, acc_val, time.time()-t))
-            if loss_val_np <= loss_stop:
-                bad_epochs = 0
-                if not args.no_test:
-                    pass
-                    #saver.save(sess, str(ckpt_path))
-                loss_stop = loss_val_np
-                acc_stop = acc_val
-            else:
-                bad_epochs += 1
-                if bad_epochs == args.patience:
-                    print('Early stop - loss=%.4f acc=%.4f' % (loss_stop, acc_stop))
-                    print('totoal time {}'.format(
-                        datetime.timedelta(seconds=time.time()-t0)))
+                # results[trial,epoch,0], results[trial,epoch,1] = loss_train_np, loss_val_np
+                # results[trial,epoch,2], results[trial,epoch,3] = acc_train, acc_val
+                results[tv,trial,epoch,0], results[tv,trial,epoch,1] = loss_train_np, loss_val_np
+                results[tv,trial,epoch,2], results[tv,trial,epoch,3] =  acc_train, acc_val
+                np.save("og_" + args.data + "_trainvol",results)
+                if np.isnan(loss_train_np):
+                    nan_happend = True
+                    print('NaN loss, stop!')
                     break
 
-        # evaluation step
-        # load check point
-        if not args.no_test or nan_happend:
-            pass
-            # saver.restore(sess, str(ckpt_path))
-            # [loss_test_np, Yhat_np] = sess.run(
-            #     [loss_test, Yhat], feed_dict={training:False})
-            # acc = utils.calc_acc(Y, Yhat_np, idx_test)
-            # print('Testing - loss=%.4f acc=%.4f' % (loss_test_np, acc))
+                print('Epoch=%d, loss=%.4f, acc=%.4f | val: loss=%.4f, acc=%.4f t=%.4f' %
+                      (epoch, loss_train_np, acc_train, loss_val_np, acc_val, time.time()-t))
+                if loss_val_np <= loss_stop:
+                    bad_epochs = 0
+                    if not args.no_test:
+                        pass
+                        #saver.save(sess, str(ckpt_path))
+                    loss_stop = loss_val_np
+                    acc_stop = acc_val
+                else:
+                    bad_epochs += 1
+                    if bad_epochs == args.patience:
+                        print('Early stop - loss=%.4f acc=%.4f' % (loss_stop, acc_stop))
+                        print('totoal time {}'.format(
+                            datetime.timedelta(seconds=time.time()-t0)))
+                        break
+
+            # evaluation step
+            # load check point
+            if not args.no_test or nan_happend:
+                pass
+                # saver.restore(sess, str(ckpt_path))
+                # [loss_test_np, Yhat_np] = sess.run(
+                #     [loss_test, Yhat], feed_dict={training:False})
+                # acc = utils.calc_acc(Y, Yhat_np, idx_test)
+                # print('Testing - loss=%.4f acc=%.4f' % (loss_test_np, acc))
