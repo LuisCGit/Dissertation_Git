@@ -144,11 +144,12 @@ init_op = tf.group(tf.global_variables_initializer(),
 # training
 # ************************************************************
 for tv, train_vol_val in enumerate(train_vol_vals):
+
     shuff = idx_train + idx_val + idx_test
     t,v = int(train_vol_val*len(shuff)), int(len(shuff)*(1-train_vol_val)/2)
     idx_train, idx_val, idx_test = shuff[:t], shuff[t:t+v], shuff[t+v:]
     for trial in range(args.trials):
-
+        print("train_vol_val, trial: ", train_vol_val, trial)
         ckpt_dir = Path('./ckpt')
         ckpt_dir.mkdir(parents=True, exist_ok=True)
         ckpt_path = ckpt_dir/'checkpoint.ckpt'
