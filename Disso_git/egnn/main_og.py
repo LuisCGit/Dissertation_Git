@@ -48,89 +48,6 @@ results = np.zeros((len(train_vol_vals),args.trials,args.epochs,4))
 
 
 
-# ************************************************************
-# calculate node features
-# ************************************************************
-vals = []
-X = X.astype(np.float32)
-EYE = scipy.sparse.eye(K, dtype=np.float32, format='coo')
-A = A.astype(np.float32)
-# normalized x
-rowsum = sparse.as_coo(X).sum(axis=-1, keepdims=True)
-#rowsum.data[rowsum.data==0] = 1e-10
-rowsum.data = 1.0 / rowsum.data
-vals.append((sparse.as_coo(X) * rowsum).to_scipy_sparse())
-nodes = scipy.sparse.hstack(vals)
-nodes = nodes.toarray()
-
-# ************************************************************
-# calculate edge features
-# ************************************************************
-vals = []
-EYE = scipy.sparse.eye(K, dtype=np.float32, format='coo')
-vals.append((A+A.transpose()+EYE>0).astype(np.float32))
-if args.encode_edge_direction:
-    vals.append((A+EYE>0).astype(np.float32))
-    vals.append((A.transpose()+EYE>0).astype(np.float32))
-vals = [sparse.as_coo(x) for x in vals]
-vals = sparse.stack(vals, axis=0)
-vals = vals.todense()
-vals = aml_graph.normalize_adj(vals, args.edge_norm, assume_symmetric_input=False)
-vals = [vals]
-#ret = sparse.concatenate(vals, 1)
-ret = np.concatenate(vals, 1)
-edges = np.transpose(ret, [1,2,0])
-
-#edges = edges.todense()
-
-# ************************************************************
-# construct model
-# ************************************************************
-def layer(layer_type, inputs, dim, training, args, **kwargs):
-    """A wrapper to dispatch different layer construction
-    """
-    if layer_type.lower() == 'gcn':
-        return aml_layers.graph_conv(
-            inputs, dim, training,
-            **kwargs)
-    elif layer_type.lower() == 'gat':
-        return aml_layers.graph_attention(
-            inputs, dim, training,
-            eps=1e-10,
-            # we have a bug in the code for 'dsm' and 'sym' of gat
-            #edge_normalize=args.edge_norm,
-            adaptive=args.adaptive,
-            **kwargs)
-    else:
-        raise ValueError('layer type:', layer_type, ' not supported.')
-
-# reset computing graph
-tf.reset_default_graph()
-
-# input layer
-training = tf.placeholder(dtype=tf.bool, shape=())
-h, edges = nodes, edges
-
-# hidden layers
-h, edges = layer(args.layer_type, (h, edges), 64, training, args, activation=tf.nn.elu)
-
-# classification layer
-logits,_ = layer(args.layer_type, (h, edges), nC, training, args,
-                 multi_edge_aggregation='mean')
-Yhat = tf.one_hot(tf.argmax(logits, axis=-1), nC)
-loss_train = utils.calc_loss(Y, logits, idx_train, W=W)
-loss_val = utils.calc_loss(Y, logits, idx_val)
-loss_test = utils.calc_loss(Y, logits, idx_test)
-
-vars = tf.trainable_variables()
-lossL2 = tf.add_n([tf.nn.l2_loss(v) for v in vars if
-                   'bias' not in v.name and
-                   'gamma' not in v.name]) * args.weight_decay
-optimizer = tf.train.AdamOptimizer(learning_rate=args.lr)
-train_op = optimizer.minimize(loss_train + lossL2)
-
-init_op = tf.group(tf.global_variables_initializer(),
-                   tf.local_variables_initializer())
 
 # ************************************************************
 # training
@@ -149,6 +66,91 @@ for tv, train_vol_val in enumerate(train_vol_vals):
     shuff = idx_train + idx_val + idx_test
     t,v = int(train_vol_val*len(shuff)), int(len(shuff)*(1-train_vol_val)/2)
     idx_train, idx_val, idx_test = shuff[:t], shuff[t:t+v], shuff[t+v:]
+
+    # ************************************************************
+    # calculate node features
+    # ************************************************************
+    vals = []
+    X = X.astype(np.float32)
+    EYE = scipy.sparse.eye(K, dtype=np.float32, format='coo')
+    A = A.astype(np.float32)
+    # normalized x
+    rowsum = sparse.as_coo(X).sum(axis=-1, keepdims=True)
+    #rowsum.data[rowsum.data==0] = 1e-10
+    rowsum.data = 1.0 / rowsum.data
+    vals.append((sparse.as_coo(X) * rowsum).to_scipy_sparse())
+    nodes = scipy.sparse.hstack(vals)
+    nodes = nodes.toarray()
+
+    # ************************************************************
+    # calculate edge features
+    # ************************************************************
+    vals = []
+    EYE = scipy.sparse.eye(K, dtype=np.float32, format='coo')
+    vals.append((A+A.transpose()+EYE>0).astype(np.float32))
+    if args.encode_edge_direction:
+        vals.append((A+EYE>0).astype(np.float32))
+        vals.append((A.transpose()+EYE>0).astype(np.float32))
+    vals = [sparse.as_coo(x) for x in vals]
+    vals = sparse.stack(vals, axis=0)
+    vals = vals.todense()
+    vals = aml_graph.normalize_adj(vals, args.edge_norm, assume_symmetric_input=False)
+    vals = [vals]
+    #ret = sparse.concatenate(vals, 1)
+    ret = np.concatenate(vals, 1)
+    edges = np.transpose(ret, [1,2,0])
+
+    #edges = edges.todense()
+
+    # ************************************************************
+    # construct model
+    # ************************************************************
+    def layer(layer_type, inputs, dim, training, args, **kwargs):
+        """A wrapper to dispatch different layer construction
+        """
+        if layer_type.lower() == 'gcn':
+            return aml_layers.graph_conv(
+                inputs, dim, training,
+                **kwargs)
+        elif layer_type.lower() == 'gat':
+            return aml_layers.graph_attention(
+                inputs, dim, training,
+                eps=1e-10,
+                # we have a bug in the code for 'dsm' and 'sym' of gat
+                #edge_normalize=args.edge_norm,
+                adaptive=args.adaptive,
+                **kwargs)
+        else:
+            raise ValueError('layer type:', layer_type, ' not supported.')
+
+    # reset computing graph
+    tf.reset_default_graph()
+
+    # input layer
+    training = tf.placeholder(dtype=tf.bool, shape=())
+    h, edges = nodes, edges
+
+    # hidden layers
+    h, edges = layer(args.layer_type, (h, edges), 64, training, args, activation=tf.nn.elu)
+
+    # classification layer
+    logits,_ = layer(args.layer_type, (h, edges), nC, training, args,
+                     multi_edge_aggregation='mean')
+    Yhat = tf.one_hot(tf.argmax(logits, axis=-1), nC)
+    loss_train = utils.calc_loss(Y, logits, idx_train, W=W)
+    loss_val = utils.calc_loss(Y, logits, idx_val)
+    loss_test = utils.calc_loss(Y, logits, idx_test)
+
+    vars = tf.trainable_variables()
+    lossL2 = tf.add_n([tf.nn.l2_loss(v) for v in vars if
+                       'bias' not in v.name and
+                       'gamma' not in v.name]) * args.weight_decay
+    optimizer = tf.train.AdamOptimizer(learning_rate=args.lr)
+    train_op = optimizer.minimize(loss_train + lossL2)
+
+    init_op = tf.group(tf.global_variables_initializer(),
+                       tf.local_variables_initializer())
+
     for trial in range(args.trials):
         print("train_vol_val, trial: ", train_vol_val, trial)
         ckpt_dir = Path('./ckpt')
