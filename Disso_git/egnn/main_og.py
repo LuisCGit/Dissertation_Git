@@ -181,7 +181,7 @@ for tv, train_vol_val in enumerate(train_vol_vals):
                 acc_train = utils.calc_acc(Y, Yhat_np, idx_train)
                 acc_val = utils.calc_acc(Y, Yhat_np, idx_val)
                 acc_test = utils.calc_acc(Y, Yhat_np, idx_test)
-                print("Yhat_np",Yhat_np[:20])
+                print("Y",Y[:20])
                 print("idx_val",idx_val[:20])
 
                 # results[trial,epoch,0], results[trial,epoch,1] = loss_train_np, loss_val_np
