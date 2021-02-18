@@ -56,36 +56,42 @@ else:
 
 dataset = args.data
 
-# ************************************************************
-# load data
-# ************************************************************
-X, Y, A, idx_train, idx_val, idx_test = utils.load_data(args,dataset)
-K = A.shape[1] if X is None else X.shape[0]
-nC = Y.shape[1]
-W = None
-if args.weighted:
-    W = utils.calc_class_weights(Y[...,idx_train,:])
-
-########################################### TRYING TO REPLACE A WITH RICCI CURVATURE ###########################################
-G = G_from_data_file(dataset)
-ollivier_curv_vals, forman_curv_vals = csr_matrix(A.shape).toarray(), csr_matrix(A.shape).toarray()
-orc = OllivierRicci(G, alpha=0.5, verbose="INFO")
-orc.compute_ricci_curvature()
-frc = FormanRicci(G)
-frc.compute_ricci_curvature()
-for tup in orc.G.edges:
-    i,j = tup[0], tup[1]
-    ollivier_curv_vals[i][j] = map_curvature_val(orc.G[i][j]['ricciCurvature'],alpha = 4)
-    forman_curv_vals[i][j] = map_curvature_val(frc.G[i][j]['formanCurvature'],alpha = 4)
-
-edge_feat_list = [ollivier_curv_vals,forman_curv_vals]
-########################################### END ###########################################
 
 #datasets = ['citeseer'] #,'pubmed']
 #(for hyperparam search) results = np.zeros((len(alpha_vals),len(curvature_mapping_alpha),len(normalization), args.epochs, 3)) #val loss, val acc, tes acc
 results = np.zeros((len(train_vol_vals),args.trials,args.epochs,4))
 #(for hyperparam search)for idx, param_tup in enumerated_product(alpha_vals, curvature_mapping_alpha, normalization):
 for tv,train_vol_val in enumerate(train_vol_vals):
+    # ************************************************************
+    # load data
+    # ************************************************************
+    X, Y, A, idx_train, idx_val, idx_test = utils.load_data(args,dataset)
+
+    shuff = idx_train + idx_val + idx_test
+    t,v = int(train_vol_val*len(shuff)), int(len(shuff)*(1-train_vol_val)/2)
+    idx_train, idx_val, idx_test = shuff[:t], shuff[t:t+v], shuff[t+v:]
+
+    K = A.shape[1] if X is None else X.shape[0]
+    nC = Y.shape[1]
+    W = None
+    if args.weighted:
+        W = utils.calc_class_weights(Y[...,idx_train,:])
+
+    ########################################### TRYING TO REPLACE A WITH RICCI CURVATURE ###########################################
+    G = G_from_data_file(dataset)
+    ollivier_curv_vals, forman_curv_vals = csr_matrix(A.shape).toarray(), csr_matrix(A.shape).toarray()
+    orc = OllivierRicci(G, alpha=0.5, verbose="INFO")
+    orc.compute_ricci_curvature()
+    frc = FormanRicci(G)
+    frc.compute_ricci_curvature()
+    for tup in orc.G.edges:
+        i,j = tup[0], tup[1]
+        ollivier_curv_vals[i][j] = map_curvature_val(orc.G[i][j]['ricciCurvature'],alpha = 4)
+        forman_curv_vals[i][j] = map_curvature_val(frc.G[i][j]['formanCurvature'],alpha = 4)
+
+    edge_feat_list = [ollivier_curv_vals,forman_curv_vals]
+    ########################################### END ###########################################
+
     for trial in range(args.trials):
         print("train_vol_val, trial: ", train_vol_val, trial)
         curv_mapping_alpha,norm = 1, 'dsm'
@@ -93,10 +99,6 @@ for tv,train_vol_val in enumerate(train_vol_vals):
         args.edge_norm = norm
 
         #SHUFFLE DATA
-        shuff = idx_train + idx_val + idx_test
-        t,v = int(train_vol_val*len(shuff)), int(len(shuff)*(1-train_vol_val)/2)
-        idx_train, idx_val, idx_test = shuff[:t], shuff[t:t+v], shuff[t+v:]
-
 
         # ************************************************************
         # calculate node features

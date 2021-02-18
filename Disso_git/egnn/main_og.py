@@ -46,15 +46,7 @@ else:
 train_vol_vals = [0.01,0.05,0.1,0.2,0.4,0.6,0.8]
 results = np.zeros((len(train_vol_vals),args.trials,args.epochs,4))
 
-# ************************************************************
-# load data
-# ************************************************************
-X, Y, A, idx_train, idx_val, idx_test = utils.load_data(args)
-K = A.shape[1] if X is None else X.shape[0]
-nC = Y.shape[1]
-W = None
-if args.weighted:
-    W = utils.calc_class_weights(Y[...,idx_train,:])
+
 
 # ************************************************************
 # calculate node features
@@ -144,6 +136,15 @@ init_op = tf.group(tf.global_variables_initializer(),
 # training
 # ************************************************************
 for tv, train_vol_val in enumerate(train_vol_vals):
+    # ************************************************************
+    # load data
+    # ************************************************************
+    X, Y, A, idx_train, idx_val, idx_test = utils.load_data(args)
+    K = A.shape[1] if X is None else X.shape[0]
+    nC = Y.shape[1]
+    W = None
+    if args.weighted:
+        W = utils.calc_class_weights(Y[...,idx_train,:])
 
     shuff = idx_train + idx_val + idx_test
     t,v = int(train_vol_val*len(shuff)), int(len(shuff)*(1-train_vol_val)/2)
