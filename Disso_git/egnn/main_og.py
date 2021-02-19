@@ -64,6 +64,7 @@ for tv, train_vol_val in enumerate(train_vol_vals):
         W = utils.calc_class_weights(Y[...,idx_train,:])
 
     shuff = idx_train + idx_val + idx_test
+    random.shuffle(shuff)
     t,v = int(train_vol_val*len(shuff)), int(len(shuff)*(1-train_vol_val)/2)
     print("t, v: ", t, v)
 
@@ -181,8 +182,6 @@ for tv, train_vol_val in enumerate(train_vol_vals):
                 acc_train = utils.calc_acc(Y, Yhat_np, idx_train)
                 acc_val = utils.calc_acc(Y, Yhat_np, idx_val)
                 acc_test = utils.calc_acc(Y, Yhat_np, idx_test)
-                print("Y[idx_val]",Y[idx_val].shape)
-                print("idx_val",idx_val[:20])
 
                 # results[trial,epoch,0], results[trial,epoch,1] = loss_train_np, loss_val_np
                 # results[trial,epoch,2], results[trial,epoch,3] = acc_train, acc_val
