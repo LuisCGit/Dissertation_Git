@@ -68,6 +68,7 @@ for tv,train_vol_val in enumerate(train_vol_vals):
     X, Y, A, idx_train, idx_val, idx_test = utils.load_data(args,dataset)
 
     shuff = idx_train + idx_val + idx_test
+    random.shuffle(shuff)
     t,v = int(train_vol_val*len(shuff)), int(len(shuff)*(1-train_vol_val)/2)
     idx_train, idx_val, idx_test = shuff[:t], shuff[t:t+v], shuff[t+v:]
 
