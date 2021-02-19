@@ -220,7 +220,7 @@ for tv,train_vol_val in enumerate(train_vol_vals):
                 # results[idx + tuple([epoch,1])] = acc_val
                 # results[idx + tuple([epoch,2])] = acc_test
                 results[tv,trial,epoch,0], results[tv,trial,epoch,1] = loss_train_np, loss_val_np
-                results[tv,trial,epoch,2], results[tv,trial,epoch,3] =  acc_train, acc_val
+                results[tv,trial,epoch,2], results[tv,trial,epoch,3] = acc_val, acc_test
                 np.save("egnn_" + dataset + "_trainvol",results)
 
                 if np.isnan(loss_train_np):
