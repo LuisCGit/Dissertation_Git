@@ -186,7 +186,7 @@ for tv, train_vol_val in enumerate(train_vol_vals):
                 # results[trial,epoch,0], results[trial,epoch,1] = loss_train_np, loss_val_np
                 # results[trial,epoch,2], results[trial,epoch,3] = acc_train, acc_val
                 results[tv,trial,epoch,0], results[tv,trial,epoch,1] = loss_train_np, loss_val_np
-                results[tv,trial,epoch,2], results[tv,trial,epoch,3] =  acc_train, acc_val
+                results[tv,trial,epoch,2], results[tv,trial,epoch,3] = acc_val, acc_test
                 np.save("og_" + args.data + "_trainvol",results)
                 if np.isnan(loss_train_np):
                     nan_happend = True
