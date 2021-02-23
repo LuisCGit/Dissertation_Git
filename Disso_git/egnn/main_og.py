@@ -42,9 +42,9 @@ if __name__ == '__main__' and '__file__' in globals():
 else:
     args = parser.parse_args([])
 
-#results = np.zeros((args.trials,args.epochs,4))
-train_vol_vals = [0.01,0.05,0.1,0.2,0.4,0.6,0.8]
-results = np.zeros((len(train_vol_vals),args.trials,args.epochs,4))
+with open('data/train_vol_idx_dicts','rb') as f:
+    idx_dicts = pickle.load(f)
+results = np.zeros((len(idx_dicts),args.trials,args.epochs,4))
 
 
 
@@ -52,7 +52,7 @@ results = np.zeros((len(train_vol_vals),args.trials,args.epochs,4))
 # ************************************************************
 # training
 # ************************************************************
-for tv, train_vol_val in enumerate(train_vol_vals):
+for tv, dic in enumerate(idx_dicts):
     # ************************************************************
     # load data
     # ************************************************************
@@ -63,12 +63,7 @@ for tv, train_vol_val in enumerate(train_vol_vals):
     if args.weighted:
         W = utils.calc_class_weights(Y[...,idx_train,:])
 
-    shuff = idx_train + idx_val + idx_test
-    random.shuffle(shuff)
-    t,v = int(train_vol_val*len(shuff)), int(len(shuff)*(1-train_vol_val)/2)
-    print("t, v: ", t, v)
-
-    idx_train, idx_val, idx_test = shuff[:t], shuff[t:t+v], shuff[t+v:]
+    idx_train, idx_val, idx_test = dic['idx_train'], dic['idx_val'], shuff['idx_test']
 
     # ************************************************************
     # calculate node features
