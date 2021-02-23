@@ -11,6 +11,7 @@ from pathlib import Path
 import sklearn.preprocessing as pp
 import numpy as np
 import sparse
+import pickle
 
 import os
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
