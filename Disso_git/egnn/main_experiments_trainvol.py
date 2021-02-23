@@ -59,24 +59,22 @@ dataset = args.data
 
 #datasets = ['citeseer'] #,'pubmed']
 #(for hyperparam search) results = np.zeros((len(alpha_vals),len(curvature_mapping_alpha),len(normalization), args.epochs, 3)) #val loss, val acc, tes acc
-results = np.zeros((len(train_vol_vals),args.trials,args.epochs,4))
-#(for hyperparam search)for idx, param_tup in enumerated_product(alpha_vals, curvature_mapping_alpha, normalization):
-for tv,train_vol_val in enumerate(train_vol_vals):
+with open('data/train_vol_idx_dicts','rb') as f:
+    idx_dicts = pickle.load(f)
+results = np.zeros((len(idx_dicts),args.trials,args.epochs,4))#(for hyperparam search)for idx, param_tup in enumerated_product(alpha_vals, curvature_mapping_alpha, normalization):
+for tv, dic in enumerate(idx_dicts):
+    train_vol_val = train_vol_vals[tv]
     # ************************************************************
     # load data
     # ************************************************************
     X, Y, A, idx_train, idx_val, idx_test = utils.load_data(args,dataset)
-
-    shuff = idx_train + idx_val + idx_test
-    random.shuffle(shuff)
-    t,v = int(train_vol_val*len(shuff)), int(len(shuff)*(1-train_vol_val)/2)
-    idx_train, idx_val, idx_test = shuff[:t], shuff[t:t+v], shuff[t+v:]
-
     K = A.shape[1] if X is None else X.shape[0]
     nC = Y.shape[1]
     W = None
     if args.weighted:
         W = utils.calc_class_weights(Y[...,idx_train,:])
+
+    idx_train, idx_val, idx_test = dic['idx_train'], dic['idx_val'], dic['idx_test']
 
     ########################################### TRYING TO REPLACE A WITH RICCI CURVATURE ###########################################
     G = G_from_data_file(dataset)
