@@ -64,7 +64,7 @@ for tv, dic in enumerate(idx_dicts):
     if args.weighted:
         W = utils.calc_class_weights(Y[...,idx_train,:])
 
-    idx_train, idx_val, idx_test = dic['idx_train'], dic['idx_val'], shuff['idx_test']
+    idx_train, idx_val, idx_test = dic['idx_train'], dic['idx_val'], dic['idx_test']
 
     # ************************************************************
     # calculate node features
