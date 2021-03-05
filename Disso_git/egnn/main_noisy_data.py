@@ -205,6 +205,7 @@ for d, dataset in enumerate(datasets):
             saver = tf.train.Saver()
             nan_happend = False
             for v,var in enumerate(var_vals):
+                print("a, v: ", (a,v))
                 for j in range(args.num_trials):
                     with tf.Session() as sess:
                         sess.run(init_op)
