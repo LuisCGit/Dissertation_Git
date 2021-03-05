@@ -125,6 +125,7 @@ for d, dataset in enumerate(datasets):
         vals = []
         X = X.astype(np.float32)
         X_noisy = X + np.random.multivariate_normal(mean = [0]*D, cov = np.identity(D)*var,size=K)
+        X_noisy = X_noisy.astype(np.float32)
         EYE = scipy.sparse.eye(K, dtype=np.float32, format='coo')
         A = A.astype(np.float32)
 
