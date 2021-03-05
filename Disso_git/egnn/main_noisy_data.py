@@ -84,8 +84,8 @@ for d, dataset in enumerate(datasets):
         frc.compute_ricci_curvature()
         for tup in orc.G.edges:
             i,j = tup[0], tup[1]
-            ollivier_curv_vals[i][j] = map_curvature_val(orc.G[i][j]['ricciCurvature'],alpha = 4)
-            forman_curv_vals[i][j] = map_curvature_val(frc.G[i][j]['formanCurvature'],alpha = 4)
+            ollivier_curv_vals[i][j] = map_curvature_val(orc.G[i][j]['ricciCurvature'],alpha = 1)
+            forman_curv_vals[i][j] = map_curvature_val(frc.G[i][j]['formanCurvature'],alpha = 1)
     K = A.shape[1] if X is None else X.shape[0]
     D = X.shape[1]
     nC = Y.shape[1]
