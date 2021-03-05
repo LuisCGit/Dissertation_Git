@@ -55,8 +55,10 @@ else:
 
 var_vals = np.logspace(-5,0,10)
 
-datasets =  ['cora','citeseer','pubmed'] #['CS'] #['pubmedm citeseer',
-test_accs = np.zeros((len(datasets),len(var_vals),args.num_trials,args.epochs,2)) #loss val, acc test
+datasets =  ['cora']#['cora','citeseer','pubmed'] #['CS'] #['pubmedm citeseer',
+alpha_vals = np.linspace(0,1,11)
+
+test_accs = np.zeros((len(datasets),len(alpha_vals),len(var_vals),args.num_trials,args.epochs,2)) #loss val, acc test
 for d, dataset in enumerate(datasets):
     print("dataset: ", dataset)
     if dataset == 'CS':
@@ -134,129 +136,129 @@ for d, dataset in enumerate(datasets):
         nodes = scipy.sparse.hstack(vals)
         nodes = nodes.toarray()
 
-
-        # ************************************************************
-        # construct model
-        # ************************************************************
-        def layer(layer_type, inputs, dim, training, args, **kwargs):
-            """A wrapper to dispatch different layer construction
-            """
-            if layer_type.lower() == 'gcn':
-                if curv == 'both':
-                    return aml_layers_p.graph_conv(
+        for a,alpha_val in enumerate(alpha_vals):
+            # ************************************************************
+            # construct model
+            # ************************************************************
+            def layer(layer_type, inputs, dim, training, args, **kwargs):
+                """A wrapper to dispatch different layer construction
+                """
+                if layer_type.lower() == 'gcn':
+                    if curv == 'both':
+                        return aml_layers_p.graph_conv(
+                            inputs, dim, training,
+                            **kwargs)
+                    else:
+                        return aml_layers.graph_conv(
+                            inputs, dim, training,
+                            **kwargs)
+                elif layer_type.lower() == 'gat':
+                    return aml_layers.graph_attention(
                         inputs, dim, training,
+                        eps=1e-10,
+                        # we have a bug in the code for 'dsm' and 'sym' of gat
+                        #edge_normalize=args.edge_norm,
+                        adaptive=args.adaptive,
                         **kwargs)
                 else:
-                    return aml_layers.graph_conv(
-                        inputs, dim, training,
-                        **kwargs)
-            elif layer_type.lower() == 'gat':
-                return aml_layers.graph_attention(
-                    inputs, dim, training,
-                    eps=1e-10,
-                    # we have a bug in the code for 'dsm' and 'sym' of gat
-                    #edge_normalize=args.edge_norm,
-                    adaptive=args.adaptive,
-                    **kwargs)
-            else:
-                raise ValueError('layer type:', layer_type, ' not supported.')
+                    raise ValueError('layer type:', layer_type, ' not supported.')
 
-        # reset computing graph
-        tf.reset_default_graph()
-        training = tf.placeholder(dtype=tf.bool, shape=())
+            # reset computing graph
+            tf.reset_default_graph()
+            training = tf.placeholder(dtype=tf.bool, shape=())
 
-        # input layer
-        h, E0, E1 = nodes, edges[:,:,0], edges[:,:,1]
+            # input layer
+            h, E0, E1 = nodes, edges[:,:,0], edges[:,:,1]
 
-        # hidden layers
-        h, E0, E1 = layer(args.layer_type, (h, E0, E1, 0), 64, training, args, activation=tf.nn.elu)
+            # hidden layers
+            h, E0, E1 = layer(args.layer_type, (h, E0, E1, alpha_val), 64, training, args, activation=tf.nn.elu)
 
-        # classification layer
-        logits,_,_ = layer(args.layer_type, (h, E0, E1, 0), nC, training, args,
-                         multi_edge_aggregation='mean')
+            # classification layer
+            logits,_,_ = layer(args.layer_type, (h, E0, E1, alpha_val), nC, training, args,
+                             multi_edge_aggregation='mean')
 
 
-        Yhat = tf.one_hot(tf.argmax(logits, axis=-1), nC)
-        loss_train = utils.calc_loss(Y, logits, idx_train, W=W)
-        loss_val = utils.calc_loss(Y, logits, idx_val)
-        loss_test = utils.calc_loss(Y, logits, idx_test)
+            Yhat = tf.one_hot(tf.argmax(logits, axis=-1), nC)
+            loss_train = utils.calc_loss(Y, logits, idx_train, W=W)
+            loss_val = utils.calc_loss(Y, logits, idx_val)
+            loss_test = utils.calc_loss(Y, logits, idx_test)
 
-        vars = tf.trainable_variables()
-        lossL2 = tf.add_n([tf.nn.l2_loss(v) for v in vars if
-                           'bias' not in v.name and
-                           'gamma' not in v.name]) * args.weight_decay
-        optimizer = tf.train.AdamOptimizer(learning_rate=args.lr)
-        train_op = optimizer.minimize(loss_train + lossL2)
+            vars = tf.trainable_variables()
+            lossL2 = tf.add_n([tf.nn.l2_loss(v) for v in vars if
+                               'bias' not in v.name and
+                               'gamma' not in v.name]) * args.weight_decay
+            optimizer = tf.train.AdamOptimizer(learning_rate=args.lr)
+            train_op = optimizer.minimize(loss_train + lossL2)
 
-        init_op = tf.group(tf.global_variables_initializer(),
-                           tf.local_variables_initializer())
+            init_op = tf.group(tf.global_variables_initializer(),
+                               tf.local_variables_initializer())
 
-        # ************************************************************
-        # training
-        # ************************************************************
-        ckpt_dir = Path('./ckpt')
-        ckpt_dir.mkdir(parents=True, exist_ok=True)
-        ckpt_path = ckpt_dir/'checkpoint.ckpt'
-        print('ckpt_path=', ckpt_path)
+            # ************************************************************
+            # training
+            # ************************************************************
+            ckpt_dir = Path('./ckpt')
+            ckpt_dir.mkdir(parents=True, exist_ok=True)
+            ckpt_path = ckpt_dir/'checkpoint.ckpt'
+            print('ckpt_path=', ckpt_path)
 
-        bad_epochs = 0
-        loss_stop = math.inf
-        acc_stop = -math.inf
-        saver = tf.train.Saver()
-        nan_happend = False
-        for v,var in enumerate(var_vals):
-            for j in range(args.num_trials):
-                with tf.Session() as sess:
-                    sess.run(init_op)
+            bad_epochs = 0
+            loss_stop = math.inf
+            acc_stop = -math.inf
+            saver = tf.train.Saver()
+            nan_happend = False
+            for v,var in enumerate(var_vals):
+                for j in range(args.num_trials):
+                    with tf.Session() as sess:
+                        sess.run(init_op)
 
-                    t0 = time.time()
-                    for epoch in range(args.epochs):
-                        t = time.time()
-                        # training step
-                        sess.run([train_op], feed_dict={training:True})
+                        t0 = time.time()
+                        for epoch in range(args.epochs):
+                            t = time.time()
+                            # training step
+                            sess.run([train_op], feed_dict={training:True})
 
-                        # validation step
-                        [loss_train_np, loss_val_np, Yhat_np] = sess.run(
-                            [loss_train, loss_val, Yhat],
-                            feed_dict={training:False})
-                        acc_train = utils.calc_acc(Y, Yhat_np, idx_train)
-                        acc_val = utils.calc_acc(Y, Yhat_np, idx_val)
-                        acc_test = utils.calc_acc(Y, Yhat_np, idx_test)
+                            # validation step
+                            [loss_train_np, loss_val_np, Yhat_np] = sess.run(
+                                [loss_train, loss_val, Yhat],
+                                feed_dict={training:False})
+                            acc_train = utils.calc_acc(Y, Yhat_np, idx_train)
+                            acc_val = utils.calc_acc(Y, Yhat_np, idx_val)
+                            acc_test = utils.calc_acc(Y, Yhat_np, idx_test)
 
-                        test_accs[d,v,j,epoch,0] = loss_val_np
-                        test_accs[d,v,j,epoch,1] = acc_test
+                            test_accs[d,v,a,j,epoch,0] = loss_val_np
+                            test_accs[d,v,a,j,epoch,1] = acc_test
 
-                        np.save("cora_citeseer_pubmed_noisy",test_accs)
+                            np.save("cora_noisy",test_accs)
 
-                        if np.isnan(loss_train_np):
-                            nan_happend = True
-                            print('NaN loss, stop!')
-                            break
-
-                        print('Epoch=%d, loss=%.4f, acc=%.4f | val: loss=%.4f, acc=%.4f t=%.4f' %
-                              (epoch, loss_train_np, acc_train, loss_val_np, acc_val, time.time()-t))
-                        if loss_val_np <= loss_stop:
-                            bad_epochs = 0
-                            if not args.no_test:
-                                #saver.save(sess, str(ckpt_path))
-                                pass
-                            loss_stop = loss_val_np
-                            acc_stop = acc_val
-                        else:
-                            bad_epochs += 1
-                            if bad_epochs == args.patience:
-                                print('Early stop - loss=%.4f acc=%.4f' % (loss_stop, acc_stop))
-                                print('totoal time {}'.format(
-                                    datetime.timedelta(seconds=time.time()-t0)))
+                            if np.isnan(loss_train_np):
+                                nan_happend = True
+                                print('NaN loss, stop!')
                                 break
 
-                    # evaluation step
-                    # load check point
-                    # if not args.no_test or nan_happend:
-                    #     saver.restore(sess, str(ckpt_path))
-                    #     [loss_test_np, Yhat_np] = sess.run(
-                    #         [loss_test, Yhat], feed_dict={training:False})
-                    #     acc = utils.calc_acc(Y, Yhat_np, idx_test)
-                    #     test_accs[i,j] = acc
-                    #     np.save("curvegnn_cora_curvatures_dense",test_accs)
-                    #     print('Testing - loss=%.4f acc=%.4f' % (loss_test_np, acc))
+                            print('Epoch=%d, loss=%.4f, acc=%.4f | val: loss=%.4f, acc=%.4f t=%.4f' %
+                                  (epoch, loss_train_np, acc_train, loss_val_np, acc_val, time.time()-t))
+                            if loss_val_np <= loss_stop:
+                                bad_epochs = 0
+                                if not args.no_test:
+                                    #saver.save(sess, str(ckpt_path))
+                                    pass
+                                loss_stop = loss_val_np
+                                acc_stop = acc_val
+                            else:
+                                bad_epochs += 1
+                                if bad_epochs == args.patience:
+                                    print('Early stop - loss=%.4f acc=%.4f' % (loss_stop, acc_stop))
+                                    print('totoal time {}'.format(
+                                        datetime.timedelta(seconds=time.time()-t0)))
+                                    break
+
+                        # evaluation step
+                        # load check point
+                        # if not args.no_test or nan_happend:
+                        #     saver.restore(sess, str(ckpt_path))
+                        #     [loss_test_np, Yhat_np] = sess.run(
+                        #         [loss_test, Yhat], feed_dict={training:False})
+                        #     acc = utils.calc_acc(Y, Yhat_np, idx_test)
+                        #     test_accs[i,j] = acc
+                        #     np.save("curvegnn_cora_curvatures_dense",test_accs)
+                        #     print('Testing - loss=%.4f acc=%.4f' % (loss_test_np, acc))
