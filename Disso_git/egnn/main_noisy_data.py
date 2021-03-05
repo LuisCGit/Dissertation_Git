@@ -144,14 +144,10 @@ for d, dataset in enumerate(datasets):
                 """A wrapper to dispatch different layer construction
                 """
                 if layer_type.lower() == 'gcn':
-                    if curv == 'both':
                         return aml_layers_p.graph_conv(
                             inputs, dim, training,
                             **kwargs)
-                    else:
-                        return aml_layers.graph_conv(
-                            inputs, dim, training,
-                            **kwargs)
+
                 elif layer_type.lower() == 'gat':
                     return aml_layers.graph_attention(
                         inputs, dim, training,
