@@ -34,7 +34,7 @@ parser.add_argument('--patience', type=int, default=100)
 parser.add_argument('--no-test', action='store_true', default=False)
 parser.add_argument('--lr', type=float, default=0.005)
 parser.add_argument('--weight-decay', type=float, default=5e-4)
-parser.add_argument('--num_trials', type=int, default=20)
+parser.add_argument('--num_trials', type=int, default=5)
 
 
 # data
