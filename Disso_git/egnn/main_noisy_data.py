@@ -165,6 +165,7 @@ for d, dataset in enumerate(datasets):
 
             # input layer
             h, E0, E1 = nodes, edges[:,:,0], edges[:,:,1]
+            print("E0, E1 shapes", (E0.shape,E1.shape))
 
             # hidden layers
             h, E0, E1 = layer(args.layer_type, (h, E0, E1, alpha_val), 64, training, args, activation=tf.nn.elu)
