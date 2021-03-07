@@ -224,8 +224,8 @@ for d, dataset in enumerate(datasets):
                             acc_val = utils.calc_acc(Y, Yhat_np, idx_val)
                             acc_test = utils.calc_acc(Y, Yhat_np, idx_test)
 
-                            test_accs[d,v,a,j,epoch,0] = loss_val_np
-                            test_accs[d,v,a,j,epoch,1] = acc_test
+                            test_accs[d,a,v,j,epoch,0] = loss_val_np
+                            test_accs[d,a,v,j,epoch,1] = acc_test
 
                             np.save("cora_noisy",test_accs)
 
