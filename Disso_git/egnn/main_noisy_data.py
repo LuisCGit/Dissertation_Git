@@ -53,10 +53,10 @@ if __name__ == '__main__' and '__file__' in globals():
 else:
     args = parser.parse_args([])
 
-var_vals = np.logspace(-5,0,10)
+var_vals = np.logspace(-5,0,5)
 
 datasets =  ['cora']#['cora','citeseer','pubmed'] #['CS'] #['pubmedm citeseer',
-alpha_vals = np.linspace(0,1,11)
+alpha_vals = np.linspace(0,1,6)
 
 test_accs = np.zeros((len(datasets),len(alpha_vals),len(var_vals),args.num_trials,args.epochs,2)) #loss val, acc test
 for d, dataset in enumerate(datasets):
