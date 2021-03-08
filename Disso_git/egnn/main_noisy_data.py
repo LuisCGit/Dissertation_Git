@@ -55,8 +55,10 @@ else:
 
 var_vals = np.logspace(-5,0,5)
 
+var_vals = [0.5, 1.0, 1.5, 2.0 , 3.0]
+
 datasets =  ['cora']#['cora','citeseer','pubmed'] #['CS'] #['pubmedm citeseer',
-alpha_vals = np.linspace(0,1,6)
+alpha_vals = np.linspace(0,1,6)[:-2]
 
 test_accs = np.zeros((len(datasets),len(alpha_vals),len(var_vals),args.num_trials,args.epochs,2)) #loss val, acc test
 for d, dataset in enumerate(datasets):
