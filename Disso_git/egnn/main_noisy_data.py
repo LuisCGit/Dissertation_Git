@@ -53,11 +53,13 @@ if __name__ == '__main__' and '__file__' in globals():
 else:
     args = parser.parse_args([])
 
-var_vals = np.logspace(-5,0,5)
+#var_vals = np.logspace(-5,0,5)
 
-var_vals = [0.5, 1.0, 1.5, 2.0 , 3.0]
+#var_vals = [0.5, 1.0, 1.5, 2.0 , 3.0]
+var_vals = [0, 0.2, 0.4, 1.0 , 1.5, 2.0, 3.0, 3.5, 4.0]
 
-datasets =  ['cora']#['cora','citeseer','pubmed'] #['CS'] #['pubmedm citeseer',
+
+datasets =  ['citeseer']#['cora','citeseer','pubmed'] #['CS'] #['pubmedm citeseer',
 alpha_vals = np.linspace(0,1,6)[:-2]
 
 test_accs = np.zeros((len(datasets),len(alpha_vals),len(var_vals),args.num_trials,args.epochs,2)) #loss val, acc test
@@ -127,6 +129,8 @@ for d, dataset in enumerate(datasets):
         vals = []
         X = X.astype(np.float32)
         X_noisy = X + np.random.multivariate_normal(mean = [0]*D, cov = np.identity(D)*var,size=K)
+        print("shape of noise matrix")
+        print(np.random.multivariate_normal(mean = [0]*D, cov = np.identity(D)*var,size=K).shape)
         X_noisy = X_noisy.astype(np.float32)
         EYE = scipy.sparse.eye(K, dtype=np.float32, format='coo')
         A = A.astype(np.float32)
@@ -229,7 +233,7 @@ for d, dataset in enumerate(datasets):
                             test_accs[d,a,v,j,epoch,0] = loss_val_np
                             test_accs[d,a,v,j,epoch,1] = acc_test
 
-                            np.save("cora_noisy",test_accs)
+                            np.save("citeseer_noisy",test_accs)
 
                             if np.isnan(loss_train_np):
                                 nan_happend = True
