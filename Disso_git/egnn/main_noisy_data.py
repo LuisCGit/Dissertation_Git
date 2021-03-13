@@ -59,7 +59,7 @@ else:
 var_vals = [0, 0.2, 0.4, 1.0 , 1.5, 2.0, 3.0, 3.5, 4.0]
 
 
-datasets =  ['citeseer']#['cora','citeseer','pubmed'] #['CS'] #['pubmedm citeseer',
+datasets =  ['pubmed']#['cora','citeseer','pubmed'] #['CS'] #['pubmedm citeseer',
 alpha_vals = np.linspace(0,1,6)[:-2]
 
 test_accs = np.zeros((len(datasets),len(alpha_vals),len(var_vals),args.num_trials,args.epochs,2)) #loss val, acc test
