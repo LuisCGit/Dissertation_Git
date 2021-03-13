@@ -233,7 +233,7 @@ for d, dataset in enumerate(datasets):
                             test_accs[d,a,v,j,epoch,0] = loss_val_np
                             test_accs[d,a,v,j,epoch,1] = acc_test
 
-                            np.save("citeseer_noisy",test_accs)
+                            np.save("pubmed_noisy",test_accs)
 
                             if np.isnan(loss_train_np):
                                 nan_happend = True
