@@ -59,7 +59,7 @@ else:
 var_vals = [0, 0.2, 0.4, 1.0 , 1.5, 2.0, 3.0, 3.5, 4.0]
 
 
-datasets =  ['pubmed']#['cora','citeseer','pubmed'] #['CS'] #['pubmedm citeseer',
+datasets =  ['citeseer']#['cora','citeseer','pubmed'] #['CS'] #['pubmedm citeseer',
 alpha_vals = np.linspace(0,1,6)[:-2]
 
 test_accs = np.zeros((len(datasets),len(alpha_vals),len(var_vals),args.num_trials,args.epochs,2)) #loss val, acc test
@@ -210,60 +210,58 @@ for d, dataset in enumerate(datasets):
             acc_stop = -math.inf
             saver = tf.train.Saver()
             nan_happend = False
-            for v,var in enumerate(var_vals):
-                print("a, v: ", (a,v))
-                for j in range(args.num_trials):
-                    with tf.Session() as sess:
-                        sess.run(init_op)
+            for j in range(args.num_trials):
+                with tf.Session() as sess:
+                    sess.run(init_op)
 
-                        t0 = time.time()
-                        for epoch in range(args.epochs):
-                            t = time.time()
-                            # training step
-                            sess.run([train_op], feed_dict={training:True})
+                    t0 = time.time()
+                    for epoch in range(args.epochs):
+                        t = time.time()
+                        # training step
+                        sess.run([train_op], feed_dict={training:True})
 
-                            # validation step
-                            [loss_train_np, loss_val_np, Yhat_np] = sess.run(
-                                [loss_train, loss_val, Yhat],
-                                feed_dict={training:False})
-                            acc_train = utils.calc_acc(Y, Yhat_np, idx_train)
-                            acc_val = utils.calc_acc(Y, Yhat_np, idx_val)
-                            acc_test = utils.calc_acc(Y, Yhat_np, idx_test)
+                        # validation step
+                        [loss_train_np, loss_val_np, Yhat_np] = sess.run(
+                            [loss_train, loss_val, Yhat],
+                            feed_dict={training:False})
+                        acc_train = utils.calc_acc(Y, Yhat_np, idx_train)
+                        acc_val = utils.calc_acc(Y, Yhat_np, idx_val)
+                        acc_test = utils.calc_acc(Y, Yhat_np, idx_test)
 
-                            test_accs[d,a,v,j,epoch,0] = loss_val_np
-                            test_accs[d,a,v,j,epoch,1] = acc_test
+                        test_accs[d,a,v,j,epoch,0] = loss_val_np
+                        test_accs[d,a,v,j,epoch,1] = acc_test
 
-                            np.save("pubmed_noisy",test_accs)
+                        np.save("citeseer_noisy",test_accs)
 
-                            if np.isnan(loss_train_np):
-                                nan_happend = True
-                                print('NaN loss, stop!')
+                        if np.isnan(loss_train_np):
+                            nan_happend = True
+                            print('NaN loss, stop!')
+                            break
+
+                        print('Epoch=%d, loss=%.4f, acc=%.4f | val: loss=%.4f, acc=%.4f t=%.4f' %
+                              (epoch, loss_train_np, acc_train, loss_val_np, acc_val, time.time()-t))
+                        if loss_val_np <= loss_stop:
+                            bad_epochs = 0
+                            if not args.no_test:
+                                #saver.save(sess, str(ckpt_path))
+                                pass
+                            loss_stop = loss_val_np
+                            acc_stop = acc_val
+                        else:
+                            bad_epochs += 1
+                            if bad_epochs == args.patience:
+                                print('Early stop - loss=%.4f acc=%.4f' % (loss_stop, acc_stop))
+                                print('totoal time {}'.format(
+                                    datetime.timedelta(seconds=time.time()-t0)))
                                 break
 
-                            print('Epoch=%d, loss=%.4f, acc=%.4f | val: loss=%.4f, acc=%.4f t=%.4f' %
-                                  (epoch, loss_train_np, acc_train, loss_val_np, acc_val, time.time()-t))
-                            if loss_val_np <= loss_stop:
-                                bad_epochs = 0
-                                if not args.no_test:
-                                    #saver.save(sess, str(ckpt_path))
-                                    pass
-                                loss_stop = loss_val_np
-                                acc_stop = acc_val
-                            else:
-                                bad_epochs += 1
-                                if bad_epochs == args.patience:
-                                    print('Early stop - loss=%.4f acc=%.4f' % (loss_stop, acc_stop))
-                                    print('totoal time {}'.format(
-                                        datetime.timedelta(seconds=time.time()-t0)))
-                                    break
-
-                        # evaluation step
-                        # load check point
-                        # if not args.no_test or nan_happend:
-                        #     saver.restore(sess, str(ckpt_path))
-                        #     [loss_test_np, Yhat_np] = sess.run(
-                        #         [loss_test, Yhat], feed_dict={training:False})
-                        #     acc = utils.calc_acc(Y, Yhat_np, idx_test)
-                        #     test_accs[i,j] = acc
-                        #     np.save("curvegnn_cora_curvatures_dense",test_accs)
-                        #     print('Testing - loss=%.4f acc=%.4f' % (loss_test_np, acc))
+                    # evaluation step
+                    # load check point
+                    # if not args.no_test or nan_happend:
+                    #     saver.restore(sess, str(ckpt_path))
+                    #     [loss_test_np, Yhat_np] = sess.run(
+                    #         [loss_test, Yhat], feed_dict={training:False})
+                    #     acc = utils.calc_acc(Y, Yhat_np, idx_test)
+                    #     test_accs[i,j] = acc
+                    #     np.save("curvegnn_cora_curvatures_dense",test_accs)
+                    #     print('Testing - loss=%.4f acc=%.4f' % (loss_test_np, acc))
