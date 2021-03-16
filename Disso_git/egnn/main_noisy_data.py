@@ -56,8 +56,8 @@ else:
 #var_vals = np.logspace(-5,0,5)
 
 #var_vals = [0.5, 1.0, 1.5, 2.0 , 3.0]
-var_vals = [0, 0.2, 0.4, 1.0 , 1.5, 2.0, 3.0, 3.5, 4.0]
-
+#var_vals = [0, 0.2, 0.4, 1.0 , 1.5, 2.0, 3.0, 3.5, 4.0] (OG FOR PUBMED)
+var_vals = [1.0 , 1.5, 2.0, 3.0, 3.5, 4.0]
 
 datasets =  ['pubmed']#['cora','citeseer','pubmed'] #['CS'] #['pubmedm citeseer',
 alpha_vals = np.linspace(0,1,6)[:-2]
