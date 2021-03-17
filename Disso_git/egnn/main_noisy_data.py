@@ -57,8 +57,8 @@ else:
 
 #var_vals = [0.5, 1.0, 1.5, 2.0 , 3.0]
 #var_vals = [0, 0.2, 0.4, 1.0 , 1.5, 2.0, 3.0, 3.5, 4.0] (OG FOR PUBMED)
-var_vals = [1.0 , 1.5, 2.0, 3.0, 3.5, 4.0]
-
+#var_vals = [1.0 , 1.5, 2.0, 3.0, 3.5, 4.0] (FOR NOISY2 PUBMED)
+var_vals = [3.0, 3.5, 4.0]
 datasets =  ['pubmed']#['cora','citeseer','pubmed'] #['CS'] #['pubmedm citeseer',
 alpha_vals = np.linspace(0,1,6)[:-2]
 
@@ -231,7 +231,7 @@ for d, dataset in enumerate(datasets):
                         test_accs[d,a,v,j,epoch,0] = loss_val_np
                         test_accs[d,a,v,j,epoch,1] = acc_test
 
-                        np.save("pubmed_noisy2",test_accs)
+                        np.save("pubmed_noisy3",test_accs)
 
                         if np.isnan(loss_train_np):
                             nan_happend = True
