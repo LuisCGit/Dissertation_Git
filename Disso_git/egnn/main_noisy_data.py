@@ -145,7 +145,7 @@ for d, dataset in enumerate(datasets):
         nodes = nodes.toarray()
 
         for a,alpha_val in enumerate(alpha_vals):
-            print("a, v : " (a,v))
+            print("a, v : ", (a,v))
             if v == 0:
                 if a in range(3):
                     continue
