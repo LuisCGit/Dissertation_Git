@@ -57,7 +57,7 @@ else:
 
 alpha_vals = np.linspace(0,1,6)[:-2]
 
-datasets =  ['pubmed']#['cora','citeseer','pubmed'] #['CS'] #['pubmedm citeseer',
+datasets =  ['pubmed','CS']#['cora','citeseer','pubmed'] #['CS'] #['pubmedm citeseer',
 test_accs = np.zeros((len(datasets),len(alpha_vals),args.num_trials,args.epochs,2)) #loss val, acc test
 for d, dataset in enumerate(datasets):
     print("dataset: ", dataset)
