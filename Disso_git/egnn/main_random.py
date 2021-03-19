@@ -226,7 +226,7 @@ for d, dataset in enumerate(datasets):
                     test_accs[d,a,j,epoch,0] = loss_val_np
                     test_accs[d,a,j,epoch,1] = acc_test
 
-                    np.save("pubmed_random",test_accs)
+                    np.save("pubmed_CS_random",test_accs)
 
                     if np.isnan(loss_train_np):
                         nan_happend = True
