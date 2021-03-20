@@ -116,6 +116,7 @@ for tv, dic in enumerate(idx_dicts):
         vals = []
         X = X.astype(np.float32)
         EYE = scipy.sparse.eye(K, dtype=np.float32, format='coo')
+        edge_feat_list = [ollivier_curv_vals,forman_curv_vals]
         A = A.astype(np.float32)
 
         # normalized x
