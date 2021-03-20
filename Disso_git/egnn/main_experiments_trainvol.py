@@ -72,7 +72,8 @@ for tv, dic in enumerate(idx_dicts):
             X,Y,idx_train,idx_val,idx_test,orc,frc = pickle.load(f)
             A = np.random.uniform(size=(X.shape[0],X.shape[0]))
             ollivier_curv_vals, forman_curv_vals = csr_matrix(A.shape).toarray(), csr_matrix(A.shape).toarray()
-
+            print("ORC")
+            print(orc)
             for tup in orc.G.edges:
                 i,j = tup[0], tup[1]
                 ollivier_curv_vals[i][j] = map_curvature_val(orc.G[i][j]['ricciCurvature'],alpha = 4)
