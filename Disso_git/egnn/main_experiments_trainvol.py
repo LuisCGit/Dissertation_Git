@@ -70,6 +70,8 @@ for tv, dic in enumerate(idx_dicts):
     if dataset == 'CS':
         with open('data_coauthor_' + dataset + '/' + dataset + '/curvatures_and_idx/curv_idx','rb') as f:
             X,Y,idx_train,idx_val,idx_test,orc,frc = pickle.load(f)
+            print("LEN ORC")
+            print(len(orc))
             A = np.random.uniform(size=(X.shape[0],X.shape[0]))
             ollivier_curv_vals, forman_curv_vals = csr_matrix(A.shape).toarray(), csr_matrix(A.shape).toarray()
 

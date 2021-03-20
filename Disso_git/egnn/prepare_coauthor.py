@@ -8,7 +8,7 @@ import sklearn.preprocessing as pp
 import torch
 import os
 
-datasets = ['Physics'] #,'CS']
+datasets = ['CS'] #,'Physics']
 
 for dataset in datasets:
     coauth = Coauthor('data_coauthor_'+dataset,dataset)
