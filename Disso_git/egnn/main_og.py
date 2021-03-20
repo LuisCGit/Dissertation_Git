@@ -187,6 +187,7 @@ for trial in range(args.trials):
             if loss_val_np <= loss_stop:
                 bad_epochs = 0
                 if not args.no_test:
+                    pass
                     #saver.save(sess, str(ckpt_path))
                 loss_stop = loss_val_np
                 acc_stop = acc_val
@@ -201,6 +202,7 @@ for trial in range(args.trials):
         # evaluation step
         # load check point
         if not args.no_test or nan_happend:
+            pass
             # saver.restore(sess, str(ckpt_path))
             # [loss_test_np, Yhat_np] = sess.run(
             #     [loss_test, Yhat], feed_dict={training:False})
