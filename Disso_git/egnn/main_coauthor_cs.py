@@ -50,7 +50,10 @@ parser.add_argument('--adaptive', action='store_true', default=False)
 parser.add_argument('--weighted', action='store_true', default=False)
 parser.add_argument('--alpha', type=float, default=0)
 
-alpha_vals = np.linspace(0,0.5,11)
+parser.add_argument('--trials', type=int, default=5)
+
+
+alpha_vals = np.linspace(0,1,11)
 curvature_mapping_alpha = [1.0,4.0]
 normalization = ['dsm','row']
 
@@ -68,10 +71,10 @@ if __name__ == '__main__' and '__file__' in globals():
 else:
     args = parser.parse_args([])
 
-results = np.zeros((len(alpha_vals),len(curvature_mapping_alpha),len(normalization), args.epochs, 3)) #val loss, val acc, tes acc
+results = np.zeros((len(alpha_vals),len(curvature_mapping_alpha),len(normalization),args.trials, args.epochs, 3)) #val loss, val acc, tes acc
 
 for idx, param_tup in enumerated_product(alpha_vals, curvature_mapping_alpha,normalization):
-        alpha_val,curv_mapping_alpha,norm = 0, 1, 'row'#param_tup
+        alpha_val,curv_mapping_alpha,norm =  param_tup #0, 1, 'row'
         args.alpha = alpha_val
         args.edge_norm = norm
         print("params", param_tup)
@@ -225,68 +228,68 @@ for idx, param_tup in enumerated_product(alpha_vals, curvature_mapping_alpha,nor
         #with tf.Session() as sess:
         #    sess.run(tf.global_variables_initializer())
 
-        print("here before sess")
-        with tf.Session() as sess:
-            sess.run(init_op)# feed_dict = {edges_plhdr:layer(args.layer_type, (h, edges), 64, training, args, activation=tf.nn.elu)[1]})
-            #sess.run(edges_layer.assign(edges_plhdr), {edges_plhdr: edges_init})
+        for trial in range(args.trials):
+            with tf.Session() as sess:
+                sess.run(init_op)# feed_dict = {edges_plhdr:layer(args.layer_type, (h, edges), 64, training, args, activation=tf.nn.elu)[1]})
+                #sess.run(edges_layer.assign(edges_plhdr), {edges_plhdr: edges_init})
 
-            t0 = time.time()
-            for epoch in range(args.epochs):
-                t = time.time()
-                # training step
-                sess.run([train_op], feed_dict={training:True}) #, feed_dict={training:True,edges_plhdr:layer(args.layer_type, (h, edges), 64, training, args, activation=tf.nn.elu)[1]})
+                t0 = time.time()
+                for epoch in range(args.epochs):
+                    t = time.time()
+                    # training step
+                    sess.run([train_op], feed_dict={training:True}) #, feed_dict={training:True,edges_plhdr:layer(args.layer_type, (h, edges), 64, training, args, activation=tf.nn.elu)[1]})
 
-                # validation step
-                [loss_train_np, loss_val_np, Yhat_np] = sess.run(
-                    [loss_train, loss_val, Yhat],
-                    feed_dict={training:False}) #edges_plhdr:layer(args.layer_type, (h, edges), 64, training, args, activation=tf.nn.elu)[1]})
-                acc_train = utils.calc_acc(Y, Yhat_np, idx_train)
-                acc_val = utils.calc_acc(Y, Yhat_np, idx_val)
-                acc_test = utils.calc_acc(Y, Yhat_np, idx_test)
+                    # validation step
+                    [loss_train_np, loss_val_np, Yhat_np] = sess.run(
+                        [loss_train, loss_val, Yhat],
+                        feed_dict={training:False}) #edges_plhdr:layer(args.layer_type, (h, edges), 64, training, args, activation=tf.nn.elu)[1]})
+                    acc_train = utils.calc_acc(Y, Yhat_np, idx_train)
+                    acc_val = utils.calc_acc(Y, Yhat_np, idx_val)
+                    acc_test = utils.calc_acc(Y, Yhat_np, idx_test)
 
-                results[idx + tuple([epoch,0])] = loss_val_np
-                results[idx + tuple([epoch,1])] = acc_val
-                results[idx + tuple([epoch,2])] = acc_test
+                    results[idx + tuple([trial,epoch,0])] = loss_val_np
+                    results[idx + tuple([trial,epoch,1])] = acc_val
+                    results[idx + tuple([trial,epoch,2])] = acc_test
 
-                np.save("egnn_coauthor_ " + args.data + "_final_acc",results)
+                    np.save("curvgnn_coauthor_ " + args.data + "_final_acc",results)
 
-                if np.isnan(loss_train_np):
-                    nan_happend = True
-                    print('NaN loss, stop!')
-                    break
-
-                print('Epoch=%d, loss=%.4f, acc=%.4f | val: loss=%.4f, acc=%.4f | test acc=%.4f t=%.4f' %
-                      (epoch, loss_train_np, acc_train, loss_val_np, acc_val, acc_test, time.time()-t))
-                if loss_val_np <= loss_stop:
-                    bad_epochs = 0
-                    if not args.no_test:
-                        #saver.save(sess, str(ckpt_path))
-                        pass
-                    loss_stop = loss_val_np
-                    acc_stop = acc_val
-                else:
-                    bad_epochs += 1
-                    if bad_epochs == args.patience:
-                        print('Early stop - loss=%.4f acc=%.4f' % (loss_stop, acc_stop))
-                        print('totoal time {}'.format(
-                            datetime.timedelta(seconds=time.time()-t0)))
+                    if np.isnan(loss_train_np):
+                        nan_happend = True
+                        print('NaN loss, stop!')
                         break
 
-            # evaluation step
-            # load check point
-            if not args.no_test or nan_happend:
-                pass
-                # print("here before saver restore")
-                # saver.restore(sess, str(ckpt_path))
-                # print("Y shape")
-                # print(Y.shape)
-                # print("Y hat shape")
-                # print(Yhat_np.shape)
-                # [loss_test_np, Yhat_np] = sess.run(
-                #     [loss_test, Yhat], feed_dict={training:False})
-                #
-                # acc = utils.calc_acc(Y, Yhat_np, idx_test)
-                # test_accs[idx] = acc
-                # np.save("egnn_test_coauthCS_params_dense",test_accs)
-                # print('Testing - loss=%.4f acc=%.4f' % (loss_test_np, acc))
-                # print("made to test phase")
+                    print('Epoch=%d, loss=%.4f, acc=%.4f | val: loss=%.4f, acc=%.4f | test acc=%.4f t=%.4f' %
+                          (epoch, loss_train_np, acc_train, loss_val_np, acc_val, acc_test, time.time()-t))
+                    if loss_val_np <= loss_stop:
+                        bad_epochs = 0
+                        if not args.no_test:
+                            #saver.save(sess, str(ckpt_path))
+                            pass
+                        loss_stop = loss_val_np
+                        acc_stop = acc_val
+                    else:
+                        bad_epochs += 1
+                        if bad_epochs == args.patience:
+                            print('Early stop - loss=%.4f acc=%.4f' % (loss_stop, acc_stop))
+                            print('totoal time {}'.format(
+                                datetime.timedelta(seconds=time.time()-t0)))
+                            break
+
+                # evaluation step
+                # load check point
+                if not args.no_test or nan_happend:
+                    pass
+                    # print("here before saver restore")
+                    # saver.restore(sess, str(ckpt_path))
+                    # print("Y shape")
+                    # print(Y.shape)
+                    # print("Y hat shape")
+                    # print(Yhat_np.shape)
+                    # [loss_test_np, Yhat_np] = sess.run(
+                    #     [loss_test, Yhat], feed_dict={training:False})
+                    #
+                    # acc = utils.calc_acc(Y, Yhat_np, idx_test)
+                    # test_accs[idx] = acc
+                    # np.save("egnn_test_coauthCS_params_dense",test_accs)
+                    # print('Testing - loss=%.4f acc=%.4f' % (loss_test_np, acc))
+                    # print("made to test phase")
