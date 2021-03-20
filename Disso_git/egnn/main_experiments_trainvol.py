@@ -67,29 +67,37 @@ for tv, dic in enumerate(idx_dicts):
     # ************************************************************
     # load data
     # ************************************************************
-    X, Y, A, idx_train, idx_val, idx_test = utils.load_data(args,dataset)
+    if dataset == 'CS':
+        with open('data_coauthor_' + dataset + '/' + dataset + '/curvatures_and_idx/curv_idx','rb') as f:
+            X,Y,idx_train,idx_val,idx_test,orc,frc = pickle.load(f)
+            A = np.random.uniform(size=(X.shape[0],X.shape[0]))
+            ollivier_curv_vals, forman_curv_vals = csr_matrix(A.shape).toarray(), csr_matrix(A.shape).toarray()
+
+            for tup in orc.G.edges:
+                i,j = tup[0], tup[1]
+                ollivier_curv_vals[i][j] = map_curvature_val(orc.G[i][j]['ricciCurvature'],alpha = 4)
+                forman_curv_vals[i][j] = map_curvature_val(frc.G[i][j]['formanCurvature'], alpha = 4)
+
+    else:
+        ########################################### TRYING TO REPLACE A WITH RICCI CURVATURE ###########################################
+        G = G_from_data_file(dataset)
+        args.data = dataset
+        X, Y, A, idx_train, idx_val, idx_test = utils.load_data(args)
+        ollivier_curv_vals, forman_curv_vals = csr_matrix(A.shape).toarray(), csr_matrix(A.shape).toarray()
+        orc = OllivierRicci(G, alpha=0.5, verbose="INFO")
+        orc.compute_ricci_curvature()
+        frc = FormanRicci(G)
+        frc.compute_ricci_curvature()
+        for tup in orc.G.edges:
+            i,j = tup[0], tup[1]
+            ollivier_curv_vals[i][j] = map_curvature_val(orc.G[i][j]['ricciCurvature'],alpha = 1)
+            forman_curv_vals[i][j] = map_curvature_val(frc.G[i][j]['formanCurvature'],alpha = 1)
     K = A.shape[1] if X is None else X.shape[0]
+    D = X.shape[1]
     nC = Y.shape[1]
     W = None
     if args.weighted:
         W = utils.calc_class_weights(Y[...,idx_train,:])
-
-    idx_train, idx_val, idx_test = dic['idx_train'], dic['idx_val'], dic['idx_test']
-
-    ########################################### TRYING TO REPLACE A WITH RICCI CURVATURE ###########################################
-    G = G_from_data_file(dataset)
-    ollivier_curv_vals, forman_curv_vals = csr_matrix(A.shape).toarray(), csr_matrix(A.shape).toarray()
-    orc = OllivierRicci(G, alpha=0.5, verbose="INFO")
-    orc.compute_ricci_curvature()
-    frc = FormanRicci(G)
-    frc.compute_ricci_curvature()
-    for tup in orc.G.edges:
-        i,j = tup[0], tup[1]
-        ollivier_curv_vals[i][j] = map_curvature_val(orc.G[i][j]['ricciCurvature'],alpha = 4)
-        forman_curv_vals[i][j] = map_curvature_val(frc.G[i][j]['formanCurvature'],alpha = 4)
-
-    edge_feat_list = [ollivier_curv_vals,forman_curv_vals]
-    ########################################### END ###########################################
 
     for trial in range(args.trials):
         print("train_vol_val, trial: ", train_vol_val, trial)

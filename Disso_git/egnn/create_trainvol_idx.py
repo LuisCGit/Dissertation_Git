@@ -21,7 +21,11 @@ train_vol_vals = [0.01,0.05,0.1,0.2,0.4,0.6,0.8]
 idx_dicts = []
 for tv,train_vol_val in enumerate(train_vol_vals):
     temp = {}
-    X, Y, A, idx_train, idx_val, idx_test = utils.load_data(args)
+    if args.data == 'CS':
+        with open('data_coauthor_' + args.data + '/' + args.data + '/curvatures_and_idx/curv_idx','rb') as f:
+            X,Y,idx_train,idx_val,idx_test,orc,frc = pickle.load(f)
+    else:
+        X, Y, A, idx_train, idx_val, idx_test = utils.load_data(args)
     shuff = idx_train + idx_val + idx_test
     random.shuffle(shuff)
     t,v = int(train_vol_val*len(shuff)), int(len(shuff)*(1-train_vol_val)/2)
