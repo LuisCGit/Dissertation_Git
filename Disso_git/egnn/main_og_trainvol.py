@@ -60,7 +60,7 @@ for tv, dic in enumerate(idx_dicts):
     # load data
     # ************************************************************
     if args.data == 'CS':
-        with open('data_coauthor_' + dataset + '/' + dataset + '/curvatures_and_idx/curv_idx','rb') as f:
+        with open('data_coauthor_' + args.data + '/' + args.data + '/curvatures_and_idx/curv_idx','rb') as f:
             X,Y,idx_train,idx_val,idx_test,orc,frc = pickle.load(f)
             A = nx.linalg.graphmatrix.adjacency_matrix(G)
     else:
