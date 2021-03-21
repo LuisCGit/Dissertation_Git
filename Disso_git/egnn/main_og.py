@@ -49,7 +49,7 @@ results = np.zeros((args.trials,args.epochs,4))
 if args.data == 'CS':
     with open('data_coauthor_' + dataset + '/' + dataset + '/curvatures_and_idx/curv_idx','rb') as f:
         X,Y,idx_train,idx_val,idx_test,orc,frc = pickle.load(f)
-        A = nx.linalg.graphmatrix.adjacency_matrix(G)
+        A = nx.linalg.graphmatrix.adjacency_matrix(orc.G)
 else:
     X, Y, A, idx_train, idx_val, idx_test = utils.load_data(args)
 K = A.shape[1] if X is None else X.shape[0]
