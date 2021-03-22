@@ -146,9 +146,9 @@ for d, dataset in enumerate(datasets):
 
         for a,alpha_val in enumerate(alpha_vals):
             print("a, v : ", (a,v))
-            if v == 0:
-                if a in range(3):
-                    continue
+            # if v == 0:
+            #     if a in range(3):
+            #         continue
             # ************************************************************
             # construct model
             # ************************************************************
