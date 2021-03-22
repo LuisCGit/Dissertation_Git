@@ -44,7 +44,7 @@ parser.add_argument('--data-splitting', type=str, default='602020')
 # model
 parser.add_argument('--layer-type', type=str, default='gcn')
 parser.add_argument('--encode-edge-direction', action='store_true')
-parser.add_argument('--edge-norm', type=str, default='row')
+parser.add_argument('--edge-norm', type=str, default='dsm')
 parser.add_argument('--adaptive', action='store_true', default=False)
 parser.add_argument('--weighted', action='store_true', default=False)
 
@@ -56,7 +56,7 @@ else:
 #var_vals = np.logspace(-5,0,5)
 
 #var_vals = [0.5, 1.0, 1.5, 2.0 , 3.0]
-var_vals = [0, 0.2, 0.4, 1.0 , 1.5, 2.0, 3.0, 3.5, 4.0] (OG FOR PUBMED)
+var_vals = [0, 0.2, 0.4, 1.0 , 1.5, 2.0, 3.0, 3.5, 4.0] #(OG FOR PUBMED)
 #var_vals = [1.0 , 1.5, 2.0, 3.0, 3.5, 4.0] (FOR NOISY2 PUBMED)
 #var_vals = [3.0, 3.5, 4.0] (FOR NOISY3 PUBMED)
 #var_vals = [3.5,4.0] (FOR NOISY4 PUBMED)
