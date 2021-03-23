@@ -34,7 +34,7 @@ parser.add_argument('--patience', type=int, default=100)
 parser.add_argument('--no-test', action='store_true', default=False)
 parser.add_argument('--lr', type=float, default=0.005)
 parser.add_argument('--weight-decay', type=float, default=5e-4)
-parser.add_argument('--num_trials', type=int, default=2)
+parser.add_argument('--num_trials', type=int, default=1)
 
 
 # data
@@ -60,6 +60,8 @@ var_vals = [0, 0.2, 0.4, 1.0 , 1.5, 2.0, 3.0, 3.5, 4.0] #(OG FOR PUBMED)
 #var_vals = [1.0 , 1.5, 2.0, 3.0, 3.5, 4.0] (FOR NOISY2 PUBMED)
 #var_vals = [3.0, 3.5, 4.0] (FOR NOISY3 PUBMED)
 #var_vals = [3.5,4.0] (FOR NOISY4 PUBMED)
+
+
 datasets =  ['CS']#['cora','citeseer','pubmed'] #['CS'] #['pubmedm citeseer',
 alpha_vals = np.linspace(0,1,6)[:-2]
 
@@ -236,7 +238,7 @@ for d, dataset in enumerate(datasets):
                         test_accs[d,a,v,j,epoch,0] = loss_val_np
                         test_accs[d,a,v,j,epoch,1] = acc_test
 
-                        np.save("coauthorCS_noisy",test_accs)
+                        np.save("coauthorCS_noisy2",test_accs)
 
                         if np.isnan(loss_train_np):
                             nan_happend = True
