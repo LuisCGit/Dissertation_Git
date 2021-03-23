@@ -34,7 +34,7 @@ parser.add_argument('--patience', type=int, default=100)
 parser.add_argument('--no-test', action='store_true', default=False)
 parser.add_argument('--lr', type=float, default=0.005)
 parser.add_argument('--weight-decay', type=float, default=5e-4)
-parser.add_argument('--num_trials', type=int, default=5)
+parser.add_argument('--num_trials', type=int, default=2)
 
 
 # data
@@ -205,10 +205,10 @@ for d, dataset in enumerate(datasets):
             # ************************************************************
             # training
             # ************************************************************
-            ckpt_dir = Path('./ckpt')
-            ckpt_dir.mkdir(parents=True, exist_ok=True)
-            ckpt_path = ckpt_dir/'checkpoint.ckpt'
-            print('ckpt_path=', ckpt_path)
+            # ckpt_dir = Path('./ckpt')
+            # ckpt_dir.mkdir(parents=True, exist_ok=True)
+            # ckpt_path = ckpt_dir/'checkpoint.ckpt'
+            # print('ckpt_path=', ckpt_path)
 
             bad_epochs = 0
             loss_stop = math.inf
