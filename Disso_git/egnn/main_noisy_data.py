@@ -150,7 +150,7 @@ for d, dataset in enumerate(datasets):
 
         for a,alpha_val in enumerate(alpha_vals):
             print("a, v : ", (a,v))
-            if not(v==4):
+            if not(v==7):
                 continue
             # if v == 0:
             #     if a in range(3):
@@ -242,7 +242,7 @@ for d, dataset in enumerate(datasets):
                         test_accs[d,a,v,j,epoch,0] = loss_val_np
                         test_accs[d,a,v,j,epoch,1] = acc_test
 
-                        np.save("pubmed_noisy2_fix",test_accs)
+                        np.save("pubmed_noisy4_fix",test_accs)
 
                         if np.isnan(loss_train_np):
                             nan_happend = True
