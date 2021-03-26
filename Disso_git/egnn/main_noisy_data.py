@@ -35,7 +35,7 @@ parser.add_argument('--patience', type=int, default=100)
 parser.add_argument('--no-test', action='store_true', default=False)
 parser.add_argument('--lr', type=float, default=0.005)
 parser.add_argument('--weight-decay', type=float, default=5e-4)
-parser.add_argument('--num_trials', type=int, default=1)
+parser.add_argument('--num_trials', type=int, default=3)
 
 
 # data
@@ -242,7 +242,7 @@ for d, dataset in enumerate(datasets):
                         test_accs[d,a,v,j,epoch,0] = loss_val_np
                         test_accs[d,a,v,j,epoch,1] = acc_test
 
-                        np.save("pubmed_noisy4_fix",test_accs)
+                        np.save("pubmed_noisy4_fix_again",test_accs)
 
                         if np.isnan(loss_train_np):
                             nan_happend = True
