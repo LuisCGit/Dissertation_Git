@@ -83,7 +83,7 @@ for idx, param_tup in enumerated_product(alpha_vals, curvature_mapping_alpha,nor
         # ************************************************************
         # load data
         # ************************************************************
-        with open('data_coauthor_' + args.data + '/' + args.data + '/curvatures_and_idx/curv_idx','rb') as f:
+        with open('../egnn/data_coauthor_' + args.data + '/' + args.data + '/curvatures_and_idx/curv_idx','rb') as f:
             X,Y,idx_train,idx_val,idx_test,orc,frc = pickle.load(f)
 
         shuff = idx_train + idx_val + idx_test
