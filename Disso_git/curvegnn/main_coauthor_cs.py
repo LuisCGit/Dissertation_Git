@@ -88,7 +88,7 @@ for idx, param_tup in enumerated_product(alpha_vals, curvature_mapping_alpha,nor
 
         shuff = idx_train + idx_val + idx_test
         random.shuffle(shuff)
-        t,v = int(0.6*len(shuff)), int(len(shuff)*(1-train_vol_val)/2)
+        t,v = int(0.6*len(shuff)), int(len(shuff)*(1-0.6)/2)
         idx_train, idx_val, idx_test = shuff[:t], shuff[t:t+v], shuff[t+v:]
         A = np.random.uniform(size=(X.shape[0],X.shape[0]))
 
